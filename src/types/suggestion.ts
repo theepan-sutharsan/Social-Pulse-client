@@ -1,3 +1,5 @@
+import { Video } from './video';
+
 export interface Suggestion {
   id: number;
   user_id: number;
