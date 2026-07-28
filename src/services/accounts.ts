@@ -13,7 +13,12 @@ export async function connectYoutubeApi(channel_id: string) {
 
 export async function getOAuthUrlApi(platform: 'instagram' | 'facebook' | 'tiktok') {
   const res = await apiClient.get(`/api/accounts/${platform}/oauth-url`);
-  return res.data.oauth_url as string;
+  return res.data as { oauth_url: string; is_mock?: boolean };
+}
+
+export async function oauthCallbackApi(platform: string, code: string) {
+  const res = await apiClient.post("/api/accounts/oauth-callback", { platform, code });
+  return res.data;
 }
 
 export async function syncAccountApi(id: number) {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthenticatedRoute } from "@/components/auth-guard";
-import { connectYoutubeApi, getOAuthUrlApi } from "@/services/accounts";
+import { connectYoutubeApi, getOAuthUrlApi, oauthCallbackApi } from "@/services/accounts";
 import { Radio, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -30,10 +30,20 @@ export default function NewAccountPage() {
 
   const handleOAuthConnect = async (p: 'instagram' | 'facebook' | 'tiktok') => {
     try {
-      const url = await getOAuthUrlApi(p);
-      window.location.href = url;
-    } catch (e) {
-      toast.error("Failed to get OAuth authorization URL.");
+      setLoading(true);
+      const data = await getOAuthUrlApi(p);
+      if (data.is_mock || !data.oauth_url || data.oauth_url.includes("mock") || data.oauth_url.includes("example.com")) {
+        // Mock mode: connect instant demo account
+        const res = await oauthCallbackApi(p, "mock_code_123");
+        toast.success(res.message || `${p.toUpperCase()} account connected!`);
+        router.push("/accounts");
+      } else {
+        window.location.href = data.oauth_url;
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to connect account.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,9 +111,10 @@ export default function NewAccountPage() {
               </p>
               <button
                 onClick={() => handleOAuthConnect(platform)}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg"
+                disabled={loading}
+                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg disabled:opacity-50"
               >
-                Authenticate with {platform.toUpperCase()}
+                {loading ? "Connecting..." : `Authenticate with ${platform.toUpperCase()}`}
               </button>
             </div>
           )}
