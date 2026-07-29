@@ -5,7 +5,7 @@ import { AuthenticatedRoute } from "@/components/auth-guard";
 import { getVideosApi } from "@/services/videos";
 import { Video } from "@/types/video";
 import { ExportButton } from "@/components/export-button";
-import { ArrowLeft, Eye, ThumbsUp, MessageSquare, Share2, Clock, Video as VideoIcon } from "lucide-react";
+import { ArrowLeft, Eye, ThumbsUp, MessageSquare, Share2, Clock, LayoutGrid, List, Video as VideoIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -20,6 +20,7 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
   const resolvedParams = use(params);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
 
   useEffect(() => {
     getVideosApi({ account_id: Number(resolvedParams.id) })
@@ -38,9 +39,39 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
           <ExportButton csvUrl="/api/videos/export" pdfUrl="/api/videos/export?format=pdf" baseFilename="account-videos" />
         </div>
 
-        <div>
-          <h1 className="text-3xl font-black text-white">Fetched Video Performance Snapshots</h1>
-          <p className="text-xs text-slate-400 mt-1">Live metrics, duration, tags, and snapshot performance data for synced videos</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-white">Fetched Video Performance Snapshots</h1>
+            <p className="text-xs text-slate-400 mt-1">Live metrics, duration, tags, and snapshot performance data for synced videos</p>
+          </div>
+
+          {/* View Switcher Toggle */}
+          <div className="flex items-center gap-1 p-1 bg-slate-900 border border-slate-800 rounded-xl">
+            <button
+              onClick={() => setViewMode('card')}
+              className={`p-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                viewMode === 'card'
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+              title="Card View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">Cards</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                viewMode === 'list'
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+              title="List View"
+            >
+              <List className="w-4 h-4" />
+              <span className="hidden sm:inline">List</span>
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -49,7 +80,8 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
           <div className="p-12 text-center bg-[#0e172a] border border-slate-800 rounded-2xl text-slate-400">
             No videos synced yet for this account.
           </div>
-        ) : (
+        ) : viewMode === 'card' ? (
+          /* Grid Card View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {videos.map((v) => {
               const defaultThumb = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=80";
@@ -124,6 +156,67 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
                         {v.shares.toLocaleString()}
                       </span>
                     )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* List View */
+          <div className="bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl overflow-hidden divide-y divide-slate-800/80">
+            <div className="p-4 bg-slate-900/60 hidden sm:grid grid-cols-12 gap-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="col-span-5">Video Details</div>
+              <div className="col-span-2 text-center">Duration / Published</div>
+              <div className="col-span-1 text-right">Views</div>
+              <div className="col-span-1 text-right">Likes</div>
+              <div className="col-span-1 text-right">Comments</div>
+              <div className="col-span-2 text-right">Shares / Platform</div>
+            </div>
+            {videos.map((v) => {
+              const defaultThumb = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=80";
+              const thumbUrl = v.thumbnail_url || defaultThumb;
+              return (
+                <div key={v.id} className="p-4 hover:bg-slate-900/40 transition flex flex-col sm:grid sm:grid-cols-12 gap-4 items-start sm:items-center">
+                  <div className="sm:col-span-5 flex items-center gap-3 w-full overflow-hidden">
+                    <div className="relative w-24 h-14 rounded-lg bg-slate-900 overflow-hidden shrink-0">
+                      <img
+                        src={thumbUrl}
+                        alt={v.title}
+                        onError={(e) => { (e.target as HTMLImageElement).src = defaultThumb; }}
+                        className="w-full h-full object-cover"
+                      />
+                      {v.duration_seconds ? (
+                        <span className="absolute bottom-1 right-1 px-1 py-0.2 text-[9px] font-bold text-white bg-black/80 rounded">
+                          {formatDuration(v.duration_seconds)}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="overflow-hidden space-y-0.5">
+                      <span className="text-[10px] font-black uppercase text-indigo-400">{v.platform}</span>
+                      <h4 className="text-xs font-bold text-white truncate hover:text-indigo-300 transition">{v.title}</h4>
+                      <p className="text-[11px] text-slate-400 truncate">{v.description || "No description."}</p>
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2 text-center text-xs text-slate-400">
+                    <p className="font-semibold text-slate-300">{formatDuration(v.duration_seconds) || "—"}</p>
+                    <p className="text-[10px] text-slate-500">{v.published_at ? v.published_at.substring(0, 10) : "—"}</p>
+                  </div>
+
+                  <div className="sm:col-span-1 text-right text-xs font-bold text-white">
+                    {v.views?.toLocaleString() || 0}
+                  </div>
+
+                  <div className="sm:col-span-1 text-right text-xs font-semibold text-emerald-400">
+                    {v.likes?.toLocaleString() || 0}
+                  </div>
+
+                  <div className="sm:col-span-1 text-right text-xs font-semibold text-sky-400">
+                    {v.comments?.toLocaleString() || 0}
+                  </div>
+
+                  <div className="sm:col-span-2 text-right text-xs text-slate-400">
+                    <span className="font-semibold text-amber-400">{v.shares?.toLocaleString() || 0} shares</span>
                   </div>
                 </div>
               );
