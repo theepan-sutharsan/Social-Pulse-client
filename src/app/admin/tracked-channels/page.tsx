@@ -78,24 +78,23 @@ export default function AdminTrackedChannelsPage() {
       {/* Manual Add Form */}
       <form onSubmit={handleCreate} className="p-6 bg-[#0e172a] border border-slate-800 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Channel ID</label>
+          <label className="block text-xs font-semibold text-slate-300 mb-1">Channel ID, Handle (@name), or URL</label>
           <input
             type="text"
             required
             value={newChannelId}
             onChange={(e) => setNewChannelId(e.target.value)}
-            placeholder="UC_x5XG1OV2P6uZZ5FSM9Ttw"
+            placeholder="e.g. @TechGuruPro or UCVHF..."
             className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Channel Name</label>
+          <label className="block text-xs font-semibold text-slate-300 mb-1">Channel Name (Optional)</label>
           <input
             type="text"
-            required
             value={newChannelName}
             onChange={(e) => setNewChannelName(e.target.value)}
-            placeholder="Google Developers"
+            placeholder="Auto-resolved from YouTube"
             className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
           />
         </div>

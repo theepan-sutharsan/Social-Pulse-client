@@ -83,17 +83,17 @@ export default function NewAccountPage() {
             <form onSubmit={handleYoutubeSubmit} className="space-y-4 pt-4 border-t border-slate-800">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  YouTube Public Channel ID
+                  YouTube Channel ID, Handle (@handle), or URL
                 </label>
                 <input
                   type="text"
                   required
                   value={channelId}
                   onChange={(e) => setChannelId(e.target.value)}
-                  placeholder="UCVHFbw7woebKtX37QMs4Cng"
+                  placeholder="e.g. @TechGuruPro, UCVHFbw7woebKtX37QMs4Cng, or https://youtube.com/@TechGuruPro"
                   className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                 />
-                <p className="text-[11px] text-slate-500 mt-1">No OAuth required for public YouTube channels</p>
+                <p className="text-[11px] text-slate-500 mt-1">Accepts Channel Handles (@name), full YouTube channel URLs, or traditional Channel IDs</p>
               </div>
 
               <button
