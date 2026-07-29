@@ -72,17 +72,26 @@ export default function SuggestionDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {suggestion.source_videos?.map((v) => (
-                <div key={v.id} className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center gap-3">
-                  <div className="p-2 bg-indigo-950 rounded-lg text-indigo-400">
-                    <Video className="w-4 h-4" />
+              {suggestion.source_videos?.map((v) => {
+                const defaultThumb = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=80";
+                const thumbUrl = v.thumbnail_url || defaultThumb;
+                return (
+                  <div key={v.id} className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center gap-3 overflow-hidden">
+                    <div className="w-16 h-10 rounded-lg bg-slate-800 overflow-hidden shrink-0 relative">
+                      <img
+                        src={thumbUrl}
+                        alt={v.title}
+                        onError={(e) => { (e.target as HTMLImageElement).src = defaultThumb; }}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-semibold text-white truncate">{v.title}</p>
+                      <p className="text-[10px] text-slate-500">ID: {v.external_id} | Platform: {v.platform}</p>
+                    </div>
                   </div>
-                  <div className="overflow-hidden">
-                    <p className="text-xs font-semibold text-white truncate">{v.title}</p>
-                    <p className="text-[10px] text-slate-500">ID: {v.external_id} | Platform: {v.platform}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
