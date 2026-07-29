@@ -5,6 +5,7 @@ export async function generateSuggestionApi(payload: {
   type: string;
   connected_account_id?: number;
   tracked_channel_id?: number;
+  provider?: string;
 }) {
   const res = await apiClient.post("/api/suggestions", payload);
   return res.data.suggestion as Suggestion;
