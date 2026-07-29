@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { compareCompetitorsApi } from "@/services/multiplatform_analytics";
+import { compareCompetitorsApi } from "@/services/multiplatform-analytics";
 import { Users, Award, TrendingUp, DollarSign, ShieldCheck, ArrowRightLeft, Sparkles } from "lucide-react";
 
 export function CompetitorComparisonView() {

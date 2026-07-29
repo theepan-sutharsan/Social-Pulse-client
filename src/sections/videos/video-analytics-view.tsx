@@ -7,7 +7,7 @@ import {
   getVideoSeoApi,
   getVideoPredictionApi,
   getVideoViralScoreApi,
-} from "@/services/multiplatform_analytics";
+} from "@/services/multiplatform-analytics";
 import { Video, Zap, Search, Eye, ThumbsUp, MessageSquare, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function VideoAnalyticsView() {

@@ -9,7 +9,7 @@ import {
 } from "@/services/tracked-channels";
 import { TrackedChannel } from "@/types/tracked-channel";
 import Link from "next/link";
-import { Radio, Plus, RefreshCw, Trash2, ArrowRight, Search, Youtube, ShieldCheck } from "lucide-react";
+import { Radio, Plus, RefreshCw, Trash2, ArrowRight, Search, Video, ShieldCheck } from "lucide-react";
 
 export function ChannelListView() {
   const [channels, setChannels] = useState<TrackedChannel[]>([]);
@@ -79,7 +79,7 @@ export function ChannelListView() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-5">
         <div>
           <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-            <Youtube className="w-8 h-8 text-red-500" /> YouTube Tracked Public Channels
+            <Video className="w-8 h-8 text-red-500" /> YouTube Tracked Public Channels
           </h1>
           <p className="text-xs text-slate-400 mt-1">Track competitor stats, historical subscriber growth, CPM earnings, and predictions.</p>
         </div>
