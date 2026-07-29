@@ -129,6 +129,7 @@ export default function NewSuggestionPage() {
                 <option value="gemini">Google Gemini AI (Recommended)</option>
                 <option value="claude">Anthropic Claude AI</option>
                 <option value="auto">Auto Detect Best Available Provider</option>
+                <option value="stub">Demo Stub Data (Offline / Testing)</option>
               </select>
             </div>
 
