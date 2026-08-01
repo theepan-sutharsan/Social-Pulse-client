@@ -23,8 +23,14 @@ export function NavigationBar() {
               <Link href="/dashboard" className="text-sm font-medium text-slate-300 hover:text-indigo-400 flex items-center gap-1.5">
                 <LayoutDashboard className="w-4 h-4" /> Dashboard
               </Link>
+              <Link href="/channels" className="text-sm font-medium text-slate-300 hover:text-indigo-400 flex items-center gap-1.5">
+                <Radio className="w-4 h-4" /> Channels
+              </Link>
+              <Link href="/competitors" className="text-sm font-medium text-slate-300 hover:text-indigo-400 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4" /> Competitors
+              </Link>
               <Link href="/accounts" className="text-sm font-medium text-slate-300 hover:text-indigo-400 flex items-center gap-1.5">
-                <Radio className="w-4 h-4" /> Accounts
+                <Radio className="w-4 h-4 text-indigo-400" /> Accounts
               </Link>
               <Link href="/suggestions" className="text-sm font-medium text-slate-300 hover:text-indigo-400 flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4" /> AI Suggestions
