@@ -6,10 +6,12 @@ import {
 } from "@/types/yt-channel-analysis";
 
 export async function startChannelAnalysisApi(
-  channel_url: string
+  channel_url: string,
+  provider: "claude" | "gemini" = "claude"
 ): Promise<YTAnalysisStartResponse> {
   const res = await apiClient.post("/api/yt-channel-analysis/start", {
     channel_url,
+    provider,
   });
   return res.data as YTAnalysisStartResponse;
 }

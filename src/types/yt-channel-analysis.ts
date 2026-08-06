@@ -12,6 +12,7 @@ export interface YTAnalysisSummary {
   topic_clusters: string[];
   content_gaps: string;
   optimal_duration_seconds: number;
+  ai_provider?: "claude" | "gemini";
 }
 
 export interface YTAnalyzedChannel {
