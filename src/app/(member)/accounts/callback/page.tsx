@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthenticatedRoute } from "@/components/auth-guard";
@@ -7,7 +8,7 @@ import { oauthCallbackApi } from "@/services/accounts";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
-export default function OAuthCallbackPage() {
+function OAuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
@@ -83,5 +84,18 @@ export default function OAuthCallbackPage() {
         )}
       </div>
     </AuthenticatedRoute>
+  );
+}
+
+export default function OAuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-md mx-auto my-16 p-8 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl text-center space-y-4">
+        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mx-auto" />
+        <h2 className="text-lg font-bold text-white">Loading...</h2>
+      </div>
+    }>
+      <OAuthCallbackContent />
+    </Suspense>
   );
 }
