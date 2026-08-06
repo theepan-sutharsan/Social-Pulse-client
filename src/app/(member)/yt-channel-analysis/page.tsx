@@ -452,7 +452,10 @@ export default function YTChannelAnalysisPage() {
 
             {/* Video Count Selector */}
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500 font-medium">Videos to Analyze</span>
+              <div>
+                <span className="text-xs text-slate-500 font-medium block">Last N Videos</span>
+                <span className="text-[10px] text-slate-600">most recent uploads</span>
+              </div>
               <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
                 {VIDEO_COUNT_OPTIONS.map((count) => (
                   <button
@@ -473,7 +476,7 @@ export default function YTChannelAnalysisPage() {
               </div>
               {videoCount < 50 && (
                 <span className="text-[10px] text-amber-500/80 font-medium">
-                  Fewer = faster analysis
+                  Faster analysis
                 </span>
               )}
             </div>
