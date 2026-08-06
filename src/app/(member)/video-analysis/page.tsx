@@ -18,7 +18,10 @@ import {
   AlertCircle,
   Download,
   FileAudio,
-  Brain
+  Brain,
+  Bot,
+  Cpu,
+  Captions,
 } from "lucide-react";
 
 export default function VideoAnalysisPage() {
@@ -102,7 +105,13 @@ export default function VideoAnalysisPage() {
             YouTube Video Analyzer
           </h1>
           <p className="text-sm text-slate-400 max-w-2xl">
-            Submit any YouTube video link to extract audio, generate transcription with Whisper, and get deep AI structural & thumbnail feedback.
+            Submit any YouTube video link. Transcripts are fetched instantly via YouTube captions when available,
+            or extracted with Whisper — then analyzed by{' '}
+            <span className={`font-semibold ${
+              provider === 'gemini' ? 'text-teal-400' : provider === 'claude' ? 'text-indigo-400' : 'text-slate-300'
+            }`}>
+              {provider === 'gemini' ? 'Google Gemini' : provider === 'claude' ? 'Anthropic Claude' : 'AI (auto-selected)'}
+            </span>.
           </p>
         </div>
 
@@ -119,20 +128,25 @@ export default function VideoAnalysisPage() {
                 <span className="text-xs text-slate-400 font-medium">AI Engine:</span>
                 <div className="inline-flex bg-slate-950 p-1 rounded-xl border border-slate-800">
                   {[
-                    { id: 'auto', label: 'Auto (Recommended)' },
-                    { id: 'gemini', label: 'Google Gemini' },
-                    { id: 'claude', label: 'Claude AI' },
+                    { id: 'auto', label: 'Auto', icon: <Sparkles className="w-3 h-3" /> },
+                    { id: 'gemini', label: 'Gemini', icon: <Cpu className="w-3 h-3" /> },
+                    { id: 'claude', label: 'Claude', icon: <Bot className="w-3 h-3" /> },
                   ].map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => setProvider(item.id as any)}
-                      className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                         provider === item.id 
-                          ? 'bg-indigo-600 text-white shadow-md' 
+                          ? item.id === 'gemini'
+                            ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-md'
+                            : item.id === 'claude'
+                            ? 'bg-indigo-600 text-white shadow-md'
+                            : 'bg-slate-700 text-white shadow-md'
                           : 'text-slate-400 hover:text-slate-200'
                       }`}
                     >
+                      {item.icon}
                       {item.label}
                     </button>
                   ))}
@@ -176,23 +190,77 @@ export default function VideoAnalysisPage() {
             <div className="mt-6 p-4 bg-slate-950/80 border border-indigo-900/50 rounded-xl space-y-4">
               <div className="flex items-center justify-between text-xs text-indigo-300 font-semibold">
                 <span>AI Processing Pipeline</span>
-                <span className="animate-pulse">Analyzing audio & visuals...</span>
+                <span className={`animate-pulse font-medium ${
+                  provider === 'gemini' ? 'text-teal-400' : provider === 'claude' ? 'text-indigo-300' : 'text-indigo-300'
+                }`}>
+                  {provider === 'gemini' ? '⚡ Powered by Gemini' : provider === 'claude' ? '◆ Powered by Claude' : '✦ AI Auto-selected'}
+                </span>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className={`p-3 rounded-lg border flex items-center gap-3 ${step === 'downloading' ? 'bg-indigo-950/60 border-indigo-500 text-white' : 'bg-slate-900/40 border-slate-800 text-slate-500'}`}>
-                  <Download className={`w-4 h-4 ${step === 'downloading' ? 'text-indigo-400 animate-bounce' : ''}`} />
-                  <div className="text-xs font-medium">1. Downloading Audio</div>
+                {/* Step 1: Transcript / Download */}
+                <div className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${
+                  step === 'downloading'
+                    ? 'bg-indigo-950/60 border-indigo-500 text-white'
+                    : step !== 'idle' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-400'
+                    : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                }`}>
+                  {step === 'downloading' ? (
+                    <Captions className="w-4 h-4 text-indigo-400 animate-bounce shrink-0" />
+                  ) : step !== 'idle' ? (
+                    <Captions className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <Captions className="w-4 h-4 shrink-0" />
+                  )}
+                  <div className="text-xs font-medium">
+                    1. Fetching Transcript
+                    <p className="text-[10px] opacity-60 font-normal mt-0.5">Captions → Whisper fallback</p>
+                  </div>
                 </div>
 
-                <div className={`p-3 rounded-lg border flex items-center gap-3 ${step === 'transcribing' ? 'bg-indigo-950/60 border-indigo-500 text-white' : 'bg-slate-900/40 border-slate-800 text-slate-500'}`}>
-                  <FileAudio className={`w-4 h-4 ${step === 'transcribing' ? 'text-indigo-400 animate-pulse' : ''}`} />
-                  <div className="text-xs font-medium">2. Whisper Transcribing</div>
+                {/* Step 2: Transcribing */}
+                <div className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${
+                  step === 'transcribing'
+                    ? 'bg-indigo-950/60 border-indigo-500 text-white'
+                    : step === 'analyzing' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-400'
+                    : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                }`}>
+                  <FileAudio className={`w-4 h-4 shrink-0 ${
+                    step === 'transcribing' ? 'text-indigo-400 animate-pulse' : ''
+                  }`} />
+                  <div className="text-xs font-medium">
+                    2. Processing Text
+                    <p className="text-[10px] opacity-60 font-normal mt-0.5">Cleaning & chunking</p>
+                  </div>
                 </div>
 
-                <div className={`p-3 rounded-lg border flex items-center gap-3 ${step === 'analyzing' ? 'bg-indigo-950/60 border-indigo-500 text-white' : 'bg-slate-900/40 border-slate-800 text-slate-500'}`}>
-                  <Brain className={`w-4 h-4 ${step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''}`} />
-                  <div className="text-xs font-medium">3. Claude AI Analysis</div>
+                {/* Step 3: AI Analysis — dynamic label */}
+                <div className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${
+                  step === 'analyzing'
+                    ? provider === 'gemini'
+                      ? 'bg-teal-950/40 border-teal-600/60 text-white'
+                      : 'bg-indigo-950/60 border-indigo-500 text-white'
+                    : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                }`}>
+                  {provider === 'gemini' ? (
+                    <Cpu className={`w-4 h-4 shrink-0 ${
+                      step === 'analyzing' ? 'text-teal-400 animate-spin' : ''
+                    }`} />
+                  ) : provider === 'claude' ? (
+                    <Bot className={`w-4 h-4 shrink-0 ${
+                      step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''
+                    }`} />
+                  ) : (
+                    <Brain className={`w-4 h-4 shrink-0 ${
+                      step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''
+                    }`} />
+                  )}
+                  <div className="text-xs font-medium">
+                    3. {provider === 'gemini' ? 'Gemini Analysis' : provider === 'claude' ? 'Claude Analysis' : 'AI Analysis'}
+                    <p className="text-[10px] opacity-60 font-normal mt-0.5">
+                      {provider === 'gemini' ? 'Google Gemini' : provider === 'claude' ? 'Anthropic Claude' : 'Auto-selected model'}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
