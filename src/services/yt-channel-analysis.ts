@@ -7,11 +7,13 @@ import {
 
 export async function startChannelAnalysisApi(
   channel_url: string,
-  provider: "claude" | "gemini" = "claude"
+  provider: "claude" | "gemini" = "claude",
+  video_count: 10 | 20 | 30 | 50 = 50
 ): Promise<YTAnalysisStartResponse> {
   const res = await apiClient.post("/api/yt-channel-analysis/start", {
     channel_url,
     provider,
+    video_count,
   });
   return res.data as YTAnalysisStartResponse;
 }

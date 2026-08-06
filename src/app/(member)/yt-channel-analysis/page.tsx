@@ -318,6 +318,7 @@ function HistoryPanel({
 export default function YTChannelAnalysisPage() {
   const [channelUrl, setChannelUrl] = useState('');
   const [provider, setProvider] = useState<'claude' | 'gemini'>('claude');
+  const [videoCount, setVideoCount] = useState<10 | 20 | 30 | 50>(50);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'idle' | 'fetching' | 'transcribing' | 'analyzing'>('idle');
   const [currentRun, setCurrentRun] = useState<YTAnalysisRun | null>(null);
@@ -325,6 +326,8 @@ export default function YTChannelAnalysisPage() {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'analyze' | 'history'>('analyze');
+
+  const VIDEO_COUNT_OPTIONS: (10 | 20 | 30 | 50)[] = [10, 20, 30, 50];
 
   const loadHistory = async () => {
     try {
@@ -358,7 +361,7 @@ export default function YTChannelAnalysisPage() {
     const t2 = setTimeout(() => setStep('analyzing'), 20000);
 
     try {
-      const res = await startChannelAnalysisApi(channelUrl.trim(), provider);
+      const res = await startChannelAnalysisApi(channelUrl.trim(), provider, videoCount);
       clearTimeout(t1);
       clearTimeout(t2);
 
@@ -381,7 +384,7 @@ export default function YTChannelAnalysisPage() {
 
   const stepLabels: Record<typeof step, string> = {
     idle: '',
-    fetching: 'Fetching channel videos via YouTube API...',
+    fetching: `Fetching last ${videoCount} videos via YouTube API...`,
     transcribing: 'Extracting video transcripts...',
     analyzing: provider === 'gemini'
       ? 'Gemini AI is analyzing patterns & generating ideas...'
@@ -412,37 +415,67 @@ export default function YTChannelAnalysisPage() {
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
           {/* Provider Selector */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500 font-medium">AI Provider</span>
-            <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
-              <button
-                id="provider-claude"
-                type="button"
-                onClick={() => setProvider('claude')}
-                disabled={loading}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                  provider === 'claude'
-                    ? 'bg-indigo-600 text-white shadow shadow-indigo-600/40'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Bot className="w-3.5 h-3.5" />
-                Claude
-              </button>
-              <button
-                id="provider-gemini"
-                type="button"
-                onClick={() => setProvider('gemini')}
-                disabled={loading}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                  provider === 'gemini'
-                    ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow shadow-blue-600/40'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Cpu className="w-3.5 h-3.5" />
-                Gemini
-              </button>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-500 font-medium">AI Provider</span>
+              <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
+                <button
+                  id="provider-claude"
+                  type="button"
+                  onClick={() => setProvider('claude')}
+                  disabled={loading}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    provider === 'claude'
+                      ? 'bg-indigo-600 text-white shadow shadow-indigo-600/40'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  Claude
+                </button>
+                <button
+                  id="provider-gemini"
+                  type="button"
+                  onClick={() => setProvider('gemini')}
+                  disabled={loading}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    provider === 'gemini'
+                      ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow shadow-blue-600/40'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Cpu className="w-3.5 h-3.5" />
+                  Gemini
+                </button>
+              </div>
+            </div>
+
+            {/* Video Count Selector */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-500 font-medium">Videos to Analyze</span>
+              <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
+                {VIDEO_COUNT_OPTIONS.map((count) => (
+                  <button
+                    key={count}
+                    id={`video-count-${count}`}
+                    type="button"
+                    onClick={() => setVideoCount(count)}
+                    disabled={loading}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                      videoCount === count
+                        ? 'bg-slate-600 text-white shadow'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {count}
+                  </button>
+                ))}
+              </div>
+              {videoCount < 50 && (
+                <span className="text-[10px] text-amber-500/80 font-medium">
+                  Fewer = faster analysis
+                </span>
+              )}
             </div>
           </div>
 

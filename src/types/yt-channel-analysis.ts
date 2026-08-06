@@ -13,6 +13,7 @@ export interface YTAnalysisSummary {
   content_gaps: string;
   optimal_duration_seconds: number;
   ai_provider?: "claude" | "gemini";
+  video_count_requested?: number;
 }
 
 export interface YTAnalyzedChannel {
