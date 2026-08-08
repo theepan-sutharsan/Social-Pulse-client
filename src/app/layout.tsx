@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/providers/auth-provider";
-import { NavigationBar } from "@/components/navigation-bar";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -18,8 +17,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="antialiased bg-[#030718] text-slate-100 min-h-screen">
         <AuthProvider>
-          <NavigationBar />
-          <main>{children}</main>
+          {children}
           <Toaster position="top-right" theme="dark" />
         </AuthProvider>
       </body>

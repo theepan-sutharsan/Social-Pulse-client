@@ -1,11 +1,14 @@
 'use client';
 
 import Link from "next/link";
-import { Activity, Sparkles, TrendingUp, ShieldCheck, Video, Zap, ArrowRight } from "lucide-react";
+import { PublicHeader } from "@/components/public-header";
+import { Card, CardContent } from "@/components/ui/card";
+import { Sparkles, TrendingUp, Video, ArrowRight } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#030718] text-white">
+      <PublicHeader />
       {/* Hero Section */}
       <section className="relative pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/80 border border-indigo-800 text-indigo-400 text-xs font-semibold mb-8">
@@ -38,7 +41,8 @@ export default function LandingPage() {
 
       {/* Feature Cards */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="p-8 rounded-2xl bg-[#0e172a] border border-slate-800 shadow-xl">
+        <Card>
+          <CardContent className="p-8">
           <div className="w-12 h-12 rounded-xl bg-indigo-950 flex items-center justify-center text-indigo-400 mb-6">
             <Video className="w-6 h-6" />
           </div>
@@ -46,9 +50,11 @@ export default function LandingPage() {
           <p className="text-slate-400 text-sm leading-relaxed">
             Link YouTube (public channel), Instagram, Facebook, and TikTok. Synchronize post performance & metrics automatically.
           </p>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="p-8 rounded-2xl bg-[#0e172a] border border-slate-800 shadow-xl">
+        <Card>
+          <CardContent className="p-8">
           <div className="w-12 h-12 rounded-xl bg-indigo-950 flex items-center justify-center text-indigo-400 mb-6">
             <Sparkles className="w-6 h-6" />
           </div>
@@ -56,9 +62,11 @@ export default function LandingPage() {
           <p className="text-slate-400 text-sm leading-relaxed">
             AI-powered generation for viral titles, high-hook captions, hashtag sets, and 4-week content calendars.
           </p>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="p-8 rounded-2xl bg-[#0e172a] border border-slate-800 shadow-xl">
+        <Card>
+          <CardContent className="p-8">
           <div className="w-12 h-12 rounded-xl bg-indigo-950 flex items-center justify-center text-indigo-400 mb-6">
             <TrendingUp className="w-6 h-6" />
           </div>
@@ -66,7 +74,8 @@ export default function LandingPage() {
           <p className="text-slate-400 text-sm leading-relaxed">
             Time-series metric growth charts, instant CSV export, and document PDF reports for suggestions and account performance.
           </p>
-        </div>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );
