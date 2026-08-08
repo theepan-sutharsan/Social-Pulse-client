@@ -9,6 +9,7 @@ import {
 } from '@/services/yt-channel-analysis';
 import { YTAnalysisRun, YTVideoAnalysisEntry, YTOverallChannelInsights, YTContentSuggestion } from '@/types/yt-channel-analysis';
 import { toast } from 'sonner';
+import { YouTubeIcon } from '@/components/icons/youtube-icon';
 import {
   BarChart3,
   Sparkles,
@@ -37,7 +38,6 @@ import {
   FileText,
   Copy,
   Check,
-  Youtube,
 } from 'lucide-react';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -663,7 +663,7 @@ export default function YTChannelAnalysisPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-900/40">
-                <Youtube className="w-6 h-6 text-white" />
+                <YouTubeIcon className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-black text-white tracking-tight">
