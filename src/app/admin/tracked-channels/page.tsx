@@ -1,12 +1,26 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { getTrackedChannelsApi, deleteTrackedChannelApi, syncTrackedChannelApi, createTrackedChannelApi } from "@/services/tracked-channels";
-import { TrackedChannel } from "@/types/tracked-channel";
-import { ImportDialog } from "@/components/import-dialog";
-import { ExportButton } from "@/components/export-button";
-import { Plus, RefreshCw, Trash2 } from "lucide-react";
+import { isAxiosError } from "axios";
+import { Plus, Radio, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { ExportButton } from "@/components/export-button";
+import { ImportDialog } from "@/components/import-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  createTrackedChannelApi,
+  deleteTrackedChannelApi,
+  getTrackedChannelsApi,
+  syncTrackedChannelApi,
+} from "@/services/tracked-channels";
+import { TrackedChannel } from "@/types/tracked-channel";
 
 export default function AdminTrackedChannelsPage() {
   const [channels, setChannels] = useState<TrackedChannel[]>([]);
@@ -20,24 +34,48 @@ export default function AdminTrackedChannelsPage() {
       setLoading(true);
       const data = await getTrackedChannelsApi();
       setChannels(data);
-    } catch (e) {
+    } catch {
       toast.error("Failed to load tracked channels.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { loadChannels(); }, []);
+  useEffect(() => {
+    let active = true;
+
+    getTrackedChannelsApi()
+      .then((data) => {
+        if (active) setChannels(data);
+      })
+      .catch(() => {
+        if (active) toast.error("Failed to load tracked channels.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createTrackedChannelApi({ channel_id: newChannelId, channel_name: newChannelName, niche: newNiche });
+      await createTrackedChannelApi({
+        channel_id: newChannelId,
+        channel_name: newChannelName,
+        niche: newNiche,
+      });
       toast.success("Channel added.");
-      setNewChannelId(""); setNewChannelName(""); setNewNiche("");
+      setNewChannelId("");
+      setNewChannelName("");
+      setNewNiche("");
       loadChannels();
-    } catch (err: any) {
-      toast.error(err.response?.data?.errors?.[0] || "Failed to add channel.");
+    } catch (error: unknown) {
+      const message = isAxiosError<{ errors?: string[] }>(error) ? error.response?.data?.errors?.[0] : undefined;
+      toast.error(message || "Failed to add channel.");
     }
   };
 
@@ -46,7 +84,7 @@ export default function AdminTrackedChannelsPage() {
       toast.info("Syncing channel...");
       const res = await syncTrackedChannelApi(id);
       toast.success(`Synced ${res.videos_fetched} videos!`);
-    } catch (e) {
+    } catch {
       toast.error("Sync failed.");
     }
   };
@@ -57,95 +95,150 @@ export default function AdminTrackedChannelsPage() {
       await deleteTrackedChannelApi(id);
       toast.success("Removed.");
       loadChannels();
-    } catch (e) {
+    } catch {
       toast.error("Remove failed.");
     }
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-2 sm:p-0">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">Tracked Competitor Channels</h1>
-          <p className="text-xs text-slate-400 mt-1">Admin curation with bulk CSV Import & Export</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          <ImportDialog onSuccess={loadChannels} />
-          <ExportButton csvUrl="/api/tracked-channels/export" pdfUrl="/api/tracked-channels/export?format=pdf" baseFilename="tracked-channels" />
-        </div>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-6 p-2 sm:p-0">
+      <PageHeader
+        eyebrow="Competitor library"
+        title="Tracked Competitor Channels"
+        description="Curate the channels used for platform-wide research, synchronization, and comparison."
+        icon={<Radio className="h-5 w-5" />}
+        actions={
+          <>
+            <ImportDialog onSuccess={loadChannels} />
+            <ExportButton
+              csvUrl="/api/tracked-channels/export"
+              pdfUrl="/api/tracked-channels/export?format=pdf"
+              baseFilename="tracked-channels"
+            />
+          </>
+        }
+      />
 
-      {/* Manual Add Form */}
-      <form onSubmit={handleCreate} className="p-4 sm:p-6 bg-[#0e172a] border border-slate-800 rounded-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Channel ID, Handle (@name), or URL</label>
-          <input
-            type="text"
-            required
-            value={newChannelId}
-            onChange={(e) => setNewChannelId(e.target.value)}
-            placeholder="e.g. @TechGuruPro or UCVHF..."
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Channel Name (Optional)</label>
-          <input
-            type="text"
-            value={newChannelName}
-            onChange={(e) => setNewChannelName(e.target.value)}
-            placeholder="Auto-resolved from YouTube"
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Niche Category</label>
-          <input
-            type="text"
-            value={newNiche}
-            onChange={(e) => setNewNiche(e.target.value)}
-            placeholder="Technology"
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/30"
-        >
-          <Plus className="w-4 h-4" /> Add Channel
-        </button>
-      </form>
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle>Add a channel</CardTitle>
+          <CardDescription className="text-xs">
+            Add a YouTube channel manually using its handle, URL, or channel ID.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleCreate} className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-2">
+              <Label htmlFor="channel-id">Channel ID, handle, or URL</Label>
+              <Input
+                id="channel-id"
+                type="text"
+                required
+                value={newChannelId}
+                onChange={(e) => setNewChannelId(e.target.value)}
+                placeholder="e.g. @TechGuruPro or UCVHF..."
+                className="h-10 text-xs"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="channel-name">Channel name (optional)</Label>
+              <Input
+                id="channel-name"
+                type="text"
+                value={newChannelName}
+                onChange={(e) => setNewChannelName(e.target.value)}
+                placeholder="Auto-resolved from YouTube"
+                className="h-10 text-xs"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="channel-niche">Niche category</Label>
+              <Input
+                id="channel-niche"
+                type="text"
+                value={newNiche}
+                onChange={(e) => setNewNiche(e.target.value)}
+                placeholder="Technology"
+                className="h-10 text-xs"
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              <Plus className="h-4 w-4" />
+              Add Channel
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-      {/* Channels Table */}
-      <div className="bg-[#0e172a] border border-slate-800 rounded-2xl overflow-x-auto scrollbar-thin shadow-xl">
-        <table className="w-full text-left text-xs min-w-[500px]">
-          <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
-            <tr>
-              <th className="p-4">Channel Name</th>
-              <th className="p-4">Channel ID</th>
-              <th className="p-4">Niche</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800 text-slate-200">
-            {channels.map((c) => (
-              <tr key={c.id}>
-                <td className="p-4 font-bold text-white whitespace-nowrap">{c.channel_name}</td>
-                <td className="p-4 font-mono text-indigo-300 whitespace-nowrap">{c.channel_id}</td>
-                <td className="p-4 whitespace-nowrap">{c.niche || '—'}</td>
-                <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                  <button onClick={() => handleSync(c.id)} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-indigo-400">
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  </button>
-                  <button onClick={() => handleDelete(c.id)} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-rose-400">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card className="overflow-hidden">
+        <Table className="min-w-[680px] text-xs">
+          <TableHeader>
+            <TableRow className="hover:bg-slate-900/60">
+              <TableHead>Channel Name</TableHead>
+              <TableHead>Channel ID</TableHead>
+              <TableHead>Niche</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading &&
+              Array.from({ length: 4 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell colSpan={4} className="py-4">
+                    <Skeleton className="h-5 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
+
+            {!loading && channels.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="h-28 text-center text-slate-400">
+                  No tracked channels found. Add one above or import a CSV.
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!loading &&
+              channels.map((channel) => (
+                <TableRow key={channel.id}>
+                  <TableCell className="whitespace-nowrap font-bold text-white">{channel.channel_name}</TableCell>
+                  <TableCell className="whitespace-nowrap font-mono text-indigo-300">{channel.channel_id}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {channel.niche ? (
+                      <Badge variant="secondary">{channel.niche}</Badge>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg text-indigo-400"
+                        onClick={() => handleSync(channel.id)}
+                        aria-label={`Sync ${channel.channel_name}`}
+                        title="Sync channel"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg text-rose-400"
+                        onClick={() => handleDelete(channel.id)}
+                        aria-label={`Remove ${channel.channel_name}`}
+                        title="Remove channel"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

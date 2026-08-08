@@ -1,48 +1,84 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { Sparkles } from "lucide-react";
+import { ExportButton } from "@/components/export-button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSuggestionsApi } from "@/services/suggestions";
 import { Suggestion } from "@/types/suggestion";
-import { ExportButton } from "@/components/export-button";
 
 export default function AdminSuggestionsPage() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { getSuggestionsApi().then(setSuggestions); }, []);
+  useEffect(() => {
+    getSuggestionsApi()
+      .then(setSuggestions)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-2 sm:p-0">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">All Generated AI Suggestions</h1>
-          <p className="text-xs text-slate-400 mt-1">System-wide AI suggestions</p>
-        </div>
-        <ExportButton csvUrl="/api/suggestions/export" baseFilename="all-suggestions" />
-      </div>
+    <div className="mx-auto max-w-6xl space-y-6 p-2 sm:p-0">
+      <PageHeader
+        eyebrow="AI activity"
+        title="All Generated AI Suggestions"
+        description="Inspect the prompts and content requests generated across the platform."
+        icon={<Sparkles className="h-5 w-5" />}
+        actions={<ExportButton csvUrl="/api/suggestions/export" baseFilename="all-suggestions" />}
+      />
 
-      <div className="bg-[#0e172a] border border-slate-800 rounded-2xl overflow-x-auto scrollbar-thin shadow-xl">
-        <table className="w-full text-left text-xs min-w-[500px]">
-          <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
-            <tr>
-              <th className="p-4">User ID</th>
-              <th className="p-4">Type</th>
-              <th className="p-4">Input Context</th>
-              <th className="p-4">Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800 text-slate-200">
-            {suggestions.map((s) => (
-              <tr key={s.id}>
-                <td className="p-4 font-mono text-slate-400 whitespace-nowrap">{s.user_id}</td>
-                <td className="p-4 uppercase font-bold text-indigo-400 whitespace-nowrap">{s.type}</td>
-                <td className="p-4 text-slate-300 max-w-xs sm:max-w-md truncate whitespace-nowrap">{s.input_context}</td>
-                <td className="p-4 text-slate-400 whitespace-nowrap">{s.created_at?.substring(0, 10)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card className="overflow-hidden">
+        <Table className="min-w-[720px] text-xs">
+          <TableHeader>
+            <TableRow className="hover:bg-slate-900/60">
+              <TableHead>User ID</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Input Context</TableHead>
+              <TableHead>Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading &&
+              Array.from({ length: 4 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell colSpan={4} className="py-4">
+                    <Skeleton className="h-5 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
+
+            {!loading && suggestions.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="h-28 text-center text-slate-400">
+                  No AI suggestions found.
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!loading &&
+              suggestions.map((suggestion) => (
+                <TableRow key={suggestion.id}>
+                  <TableCell className="whitespace-nowrap font-mono text-slate-400">{suggestion.user_id}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <Badge className="border-transparent bg-transparent p-0 uppercase text-indigo-400">
+                      {suggestion.type.replaceAll("_", " ")}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate whitespace-nowrap text-slate-300 sm:max-w-md">
+                    {suggestion.input_context}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-slate-400">
+                    {suggestion.created_at?.substring(0, 10)}
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }
-
