@@ -63,20 +63,20 @@ export default function AdminTrackedChannelsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+    <div className="space-y-6 max-w-6xl mx-auto p-2 sm:p-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
         <div>
-          <h1 className="text-3xl font-black text-white">Tracked Competitor Channels</h1>
-          <p className="text-xs text-slate-400">Admin curation with bulk CSV Import & Export</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-white">Tracked Competitor Channels</h1>
+          <p className="text-xs text-slate-400 mt-1">Admin curation with bulk CSV Import & Export</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <ImportDialog onSuccess={loadChannels} />
           <ExportButton csvUrl="/api/tracked-channels/export" pdfUrl="/api/tracked-channels/export?format=pdf" baseFilename="tracked-channels" />
         </div>
       </div>
 
       {/* Manual Add Form */}
-      <form onSubmit={handleCreate} className="p-6 bg-[#0e172a] border border-slate-800 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+      <form onSubmit={handleCreate} className="p-4 sm:p-6 bg-[#0e172a] border border-slate-800 rounded-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
         <div>
           <label className="block text-xs font-semibold text-slate-300 mb-1">Channel ID, Handle (@name), or URL</label>
           <input
@@ -110,15 +110,15 @@ export default function AdminTrackedChannelsPage() {
         </div>
         <button
           type="submit"
-          className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/30"
         >
           <Plus className="w-4 h-4" /> Add Channel
         </button>
       </form>
 
       {/* Channels Table */}
-      <div className="bg-[#0e172a] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-        <table className="w-full text-left text-xs">
+      <div className="bg-[#0e172a] border border-slate-800 rounded-2xl overflow-x-auto scrollbar-thin shadow-xl">
+        <table className="w-full text-left text-xs min-w-[500px]">
           <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
             <tr>
               <th className="p-4">Channel Name</th>
@@ -130,10 +130,10 @@ export default function AdminTrackedChannelsPage() {
           <tbody className="divide-y divide-slate-800 text-slate-200">
             {channels.map((c) => (
               <tr key={c.id}>
-                <td className="p-4 font-bold text-white">{c.channel_name}</td>
-                <td className="p-4 font-mono text-indigo-300">{c.channel_id}</td>
-                <td className="p-4">{c.niche || '—'}</td>
-                <td className="p-4 text-right space-x-2">
+                <td className="p-4 font-bold text-white whitespace-nowrap">{c.channel_name}</td>
+                <td className="p-4 font-mono text-indigo-300 whitespace-nowrap">{c.channel_id}</td>
+                <td className="p-4 whitespace-nowrap">{c.niche || '—'}</td>
+                <td className="p-4 text-right space-x-2 whitespace-nowrap">
                   <button onClick={() => handleSync(c.id)} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-indigo-400">
                     <RefreshCw className="w-3.5 h-3.5" />
                   </button>

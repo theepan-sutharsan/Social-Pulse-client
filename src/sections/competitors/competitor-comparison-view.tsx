@@ -39,7 +39,7 @@ export function CompetitorComparisonView() {
       </div>
 
       {/* Compare Form */}
-      <div className="p-6 bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl space-y-4">
+      <div className="p-4 sm:p-6 bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl space-y-4">
         <form onSubmit={handleCompare} className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1 w-full">
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">Enter Competitor YouTube Handle or Channel ID</label>
@@ -55,7 +55,7 @@ export function CompetitorComparisonView() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
           >
             {loading ? "Analyzing..." : "Compare Competitor"}
           </button>
@@ -66,17 +66,17 @@ export function CompetitorComparisonView() {
       {result && (
         <div className="space-y-8 animate-fadeIn">
           {/* Winner Banner */}
-          <div className="p-6 bg-gradient-to-r from-indigo-950/80 via-slate-900 to-indigo-950/80 border border-indigo-500/30 rounded-2xl flex items-center justify-between shadow-xl">
+          <div className="p-4 sm:p-6 bg-gradient-to-r from-indigo-950/80 via-slate-900 to-indigo-950/80 border border-indigo-500/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
             <div>
               <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Comparative Benchmark Result</span>
-              <h2 className="text-2xl font-black text-white mt-1">
+              <h2 className="text-xl sm:text-2xl font-black text-white mt-1">
                 Leader: <span className="text-emerald-400">{gaps.leader}</span>
               </h2>
               <p className="text-xs text-slate-300 mt-1">
                 Follower Gap: {gaps.follower_gap >= 0 ? `+${gaps.follower_gap}` : gaps.follower_gap} | Overall Score Gap: {gaps.score_gap}
               </p>
             </div>
-            <Award className="w-12 h-12 text-amber-400" />
+            <Award className="w-10 h-10 sm:w-12 sm:h-12 text-amber-400 shrink-0" />
           </div>
 
           {/* Cards Comparison */}
