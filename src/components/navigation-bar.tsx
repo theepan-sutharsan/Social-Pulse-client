@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/providers/auth-provider";
-import { Activity, LogOut, LayoutDashboard, User as UserIcon, Shield, Radio, Sparkles, Menu, X, Video, Youtube } from "lucide-react";
+import { Activity, LogOut, LayoutDashboard, User as UserIcon, Shield, Radio, Sparkles, Menu, X, Video, BarChart3 } from "lucide-react";
 
 export function NavigationBar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -44,7 +44,7 @@ export function NavigationBar() {
                 <Video className="w-4 h-4 text-indigo-400" /> Video Analyzer
               </Link>
               <Link href="/yt-channel-analysis" className="text-sm font-medium text-slate-300 hover:text-indigo-400 flex items-center gap-1.5 transition-colors">
-                <Youtube className="w-4 h-4 text-red-500" /> Youtube Channel Analyzer
+                <BarChart3 className="w-4 h-4 text-red-400" /> YT Channel
               </Link>
               {isAdmin && (
                 <Link href="/admin" className="text-sm font-semibold text-indigo-400 flex items-center gap-1 px-2.5 py-1 bg-indigo-950/60 border border-indigo-800/50 rounded-lg hover:bg-indigo-900/60 transition-colors">
@@ -141,7 +141,7 @@ export function NavigationBar() {
                 onClick={closeMobileMenu}
                 className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-indigo-950/40 hover:text-indigo-400 rounded-lg transition-colors"
               >
-                <Youtube className="w-4 h-4 text-red-500" /> Youtube Channel Analyzer
+                <BarChart3 className="w-4 h-4 text-red-400" /> YT Channel Analyzer
               </Link>
               {isAdmin && (
                 <Link
