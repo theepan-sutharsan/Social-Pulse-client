@@ -40,12 +40,22 @@ export interface YTOverallChannelInsights {
   recommendations: string[];
 }
 
+// ─── Content Suggestions ──────────────────────────────────────────────────────
+
+export interface YTContentSuggestion {
+  title: string;
+  hook: string;
+  rationale: string;
+}
+
 // ─── Analysis summary stored in DB ───────────────────────────────────────────
 
 export interface YTAnalysisSummary {
   // New schema
   video_analysis: YTVideoAnalysisEntry[];
   overall_channel_insights: YTOverallChannelInsights;
+  top_5_content_suggestions?: YTContentSuggestion[];
+  top_pick_script_outline?: string;
   total_videos_analyzed: number;
   // Metadata
   ai_provider?: 'claude' | 'gemini';
@@ -73,7 +83,7 @@ export interface YTAnalysisRun {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   videos_analyzed_count: number;
   analysis_summary: YTAnalysisSummary | null;
-  generated_ideas: string[] | null;
+  generated_ideas: YTContentSuggestion[] | string[] | null;
   script_outline: string | null;
   error_message: string | null;
   started_at: string | null;
