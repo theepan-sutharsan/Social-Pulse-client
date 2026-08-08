@@ -37,6 +37,7 @@ import {
   FileText,
   Copy,
   Check,
+  Youtube,
 } from 'lucide-react';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -661,8 +662,8 @@ export default function YTChannelAnalysisPage() {
         <div className="border-b border-slate-800/60 bg-[#040a1e]/80 backdrop-blur-sm">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/40">
-                <BarChart3 className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-900/40">
+                <Youtube className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-black text-white tracking-tight">
