@@ -7,7 +7,7 @@ import {
   getChannelAnalysisHistoryApi,
   getChannelAnalysisRunApi,
 } from '@/services/yt-channel-analysis';
-import { YTAnalysisRun, YTVideoAnalysisEntry, YTOverallChannelInsights } from '@/types/yt-channel-analysis';
+import { YTAnalysisRun, YTVideoAnalysisEntry, YTOverallChannelInsights, YTContentSuggestion } from '@/types/yt-channel-analysis';
 import { toast } from 'sonner';
 import {
   BarChart3,
@@ -34,6 +34,9 @@ import {
   BarChart2,
   Globe,
   Target,
+  FileText,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -281,14 +284,141 @@ function ChannelInsights({ insights }: { insights: YTOverallChannelInsights }) {
   );
 }
 
+// ─── Script Outline Block ──────────────────────────────────────────────────────
+
+function ScriptOutlineBlock({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800/60 bg-slate-800/40">
+        <div className="flex items-center gap-2 text-slate-300 text-sm font-semibold">
+          <FileText className="w-4 h-4 text-indigo-400" />
+          Full Script Outline — Top Pick
+        </div>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-700/50"
+        >
+          {copied ? (
+            <><Check className="w-3.5 h-3.5 text-emerald-400" /> Copied</>
+          ) : (
+            <><Copy className="w-3.5 h-3.5" /> Copy</>
+          )}
+        </button>
+      </div>
+      <pre className="p-5 text-slate-300 text-xs leading-relaxed whitespace-pre-wrap font-mono overflow-x-auto max-h-96 overflow-y-auto">
+        {text}
+      </pre>
+    </div>
+  );
+}
+
+// ─── Suggestions panel ────────────────────────────────────────────────────────
+
+function SuggestionsPanel({
+  suggestions,
+  scriptOutline,
+}: {
+  suggestions: YTContentSuggestion[];
+  scriptOutline?: string;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-yellow-400" />
+          <p className="text-white font-semibold text-sm">Top 5 Content Suggestions</p>
+        </div>
+        {suggestions.length === 0 ? (
+          <div className="text-slate-500 text-sm text-center py-8">
+            No content suggestions available for this run.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3">
+            {suggestions.map((item, idx) => {
+              const isTop = idx === 0;
+              return (
+                <div
+                  key={idx}
+                  className={`rounded-2xl border p-5 space-y-3 transition-all ${
+                    isTop
+                      ? 'border-indigo-500/50 bg-indigo-950/30 shadow-lg shadow-indigo-900/20'
+                      : 'border-slate-800/60 bg-slate-900/60'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                          isTop ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'
+                        }`}
+                      >
+                        {idx + 1}
+                      </span>
+                      {isTop && (
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-950/60 border border-indigo-800/50 px-2 py-0.5 rounded-full">
+                          Top Pick
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <h3 className="text-white font-semibold text-sm leading-snug">{item.title}</h3>
+
+                  <div className="space-y-3 pt-1">
+                    {item.hook && (
+                      <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/40">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-400 mb-1">
+                          Hook (First 10 Seconds)
+                        </p>
+                        <p className="text-slate-300 text-xs leading-relaxed italic">"{item.hook}"</p>
+                      </div>
+                    )}
+                    {item.rationale && (
+                      <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/40">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400 mb-1">
+                          Why This Will Work
+                        </p>
+                        <p className="text-slate-300 text-xs leading-relaxed">{item.rationale}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {scriptOutline && <ScriptOutlineBlock text={scriptOutline} />}
+    </div>
+  );
+}
+
 // ─── Main analysis result ─────────────────────────────────────────────────────
 
 function AnalysisResult({ run }: { run: YTAnalysisRun }) {
   const summary = run.analysis_summary;
   const videos = summary?.video_analysis ?? [];
   const insights = summary?.overall_channel_insights;
-  const [activeSection, setActiveSection] = useState<'videos' | 'insights'>('videos');
+  const [activeSection, setActiveSection] = useState<'videos' | 'insights' | 'suggestions'>('videos');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const suggestions: YTContentSuggestion[] = (summary?.top_5_content_suggestions && summary.top_5_content_suggestions.length > 0)
+    ? summary.top_5_content_suggestions
+    : (run.generated_ideas || []).map((idea: any) =>
+        typeof idea === 'string'
+          ? { title: idea, hook: 'High-CTR hook script based on channel pattern analysis.', rationale: 'Recommended content direction.' }
+          : idea
+      );
+
+  const scriptOutline = summary?.top_pick_script_outline || run.script_outline || undefined;
 
   const filtered = searchQuery
     ? videos.filter(v => v.title.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -319,7 +449,7 @@ function AnalysisResult({ run }: { run: YTAnalysisRun }) {
       </div>
 
       {/* Section tabs */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setActiveSection('videos')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
@@ -337,6 +467,15 @@ function AnalysisResult({ run }: { run: YTAnalysisRun }) {
         >
           <Lightbulb className="w-3.5 h-3.5" />
           Channel Insights
+        </button>
+        <button
+          onClick={() => setActiveSection('suggestions')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+            activeSection === 'suggestions' ? 'bg-indigo-600 text-white' : 'bg-slate-900/60 border border-slate-800/60 text-slate-400 hover:text-white'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+          Content Suggestions ({suggestions.length})
         </button>
       </div>
 
@@ -368,6 +507,11 @@ function AnalysisResult({ run }: { run: YTAnalysisRun }) {
       {/* Channel insights section */}
       {activeSection === 'insights' && insights && (
         <ChannelInsights insights={insights} />
+      )}
+
+      {/* Content Suggestions section */}
+      {activeSection === 'suggestions' && (
+        <SuggestionsPanel suggestions={suggestions} scriptOutline={scriptOutline} />
       )}
     </div>
   );
@@ -572,8 +716,8 @@ export default function YTChannelAnalysisPage() {
             {/* Video Count Selector */}
             <div className="flex items-center gap-3">
               <div>
-                <span className="text-xs text-slate-500 font-medium block">Last N Videos</span>
-                <span className="text-[10px] text-slate-600">most recent uploads</span>
+                <span className="text-xs text-slate-500 font-medium block">Videos to Scan</span>
+                <span className="text-[10px] text-slate-600">from latest uploads</span>
               </div>
               <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
                 {VIDEO_COUNT_OPTIONS.map((count) => (
