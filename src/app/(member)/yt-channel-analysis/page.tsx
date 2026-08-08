@@ -22,8 +22,6 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
-  Cpu,
-  Bot,
   ThumbsUp,
   MessageSquare,
   Eye,
@@ -581,7 +579,6 @@ function HistoryPanel({
 
 export default function YTChannelAnalysisPage() {
   const [channelUrl, setChannelUrl] = useState('');
-  const [provider, setProvider] = useState<'claude' | 'gemini'>('claude');
   const [videoCount, setVideoCount] = useState<10 | 20 | 30 | 50>(50);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'idle' | 'fetching' | 'transcribing' | 'analyzing'>('idle');
@@ -625,7 +622,7 @@ export default function YTChannelAnalysisPage() {
     const t2 = setTimeout(() => setStep('analyzing'), 20000);
 
     try {
-      const res = await startChannelAnalysisApi(channelUrl.trim(), provider, videoCount);
+      const res = await startChannelAnalysisApi(channelUrl.trim(), videoCount);
       clearTimeout(t1);
       clearTimeout(t2);
 
@@ -650,9 +647,7 @@ export default function YTChannelAnalysisPage() {
     idle: '',
     fetching: `Fetching last ${videoCount} videos via YouTube API...`,
     transcribing: 'Extracting video transcripts...',
-    analyzing: provider === 'gemini'
-      ? 'Gemini AI is analyzing patterns & generating ideas...'
-      : 'Claude AI is analyzing patterns & generating ideas...',
+    analyzing: 'Analyzing patterns and generating ideas...',
   };
 
   return (
@@ -678,42 +673,7 @@ export default function YTChannelAnalysisPage() {
         </div>
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-          {/* Provider Selector */}
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500 font-medium">AI Provider</span>
-              <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
-                <button
-                  id="provider-claude"
-                  type="button"
-                  onClick={() => setProvider('claude')}
-                  disabled={loading}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    provider === 'claude'
-                      ? 'bg-indigo-600 text-white shadow shadow-indigo-600/40'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <Bot className="w-3.5 h-3.5" />
-                  Claude
-                </button>
-                <button
-                  id="provider-gemini"
-                  type="button"
-                  onClick={() => setProvider('gemini')}
-                  disabled={loading}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    provider === 'gemini'
-                      ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow shadow-blue-600/40'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <Cpu className="w-3.5 h-3.5" />
-                  Gemini
-                </button>
-              </div>
-            </div>
-
             {/* Video Count Selector */}
             <div className="flex items-center gap-3">
               <div>
@@ -827,33 +787,12 @@ export default function YTChannelAnalysisPage() {
                   </div>
                   <p className="text-slate-400 text-sm max-w-sm mx-auto">
                     Enter a YouTube channel URL above. The system will fetch the last 50 videos,
-                    analyze transcripts, and use your selected AI to generate content ideas and a full script.
+                    analyze transcripts, and generate content ideas with a full script.
                   </p>
-                  <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                    <span>Powered by</span>
-                    <span className={`font-semibold ${
-                      provider === 'gemini' ? 'text-teal-400' : 'text-indigo-400'
-                    }`}>
-                      {provider === 'gemini' ? '✦ Google Gemini' : '◆ Anthropic Claude'}
-                    </span>
-                  </div>
                 </div>
               )}
               {currentRun && currentRun.status === 'completed' && (
-                <div className="space-y-4">
-                  {/* Provider badge */}
-                  {currentRun.analysis_summary?.ai_provider && (
-                    <div className={`inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full border ${
-                      currentRun.analysis_summary.ai_provider === 'gemini'
-                        ? 'bg-teal-950/50 text-teal-400 border-teal-800/40'
-                        : 'bg-indigo-950/50 text-indigo-400 border-indigo-800/40'
-                    }`}>
-                      {currentRun.analysis_summary.ai_provider === 'gemini'
-                        ? <><Cpu className="w-3 h-3" /> Analyzed by Gemini</>
-                        : <><Bot className="w-3 h-3" /> Analyzed by Claude</>
-                      }
-                    </div>
-                  )}
+                <div>
                   <AnalysisResult run={currentRun} />
                 </div>
               )}

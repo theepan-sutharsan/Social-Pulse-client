@@ -291,7 +291,7 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
         <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Eye className="w-5 h-5 text-purple-400" /> Claude Vision Thumbnail Feedback
+              <Eye className="w-5 h-5 text-purple-400" /> Vision Thumbnail Feedback
             </h2>
             <span className={`text-sm font-bold px-3 py-1 rounded-xl border ${getScoreColor(thumbnail.thumbnail_score || 0)}`}>
               Score: {thumbnail.thumbnail_score || 0}/10

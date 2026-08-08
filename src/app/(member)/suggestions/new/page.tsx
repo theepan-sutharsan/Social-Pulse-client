@@ -19,7 +19,6 @@ export default function NewSuggestionPage() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | undefined>();
   const [selectedChannelId, setSelectedChannelId] = useState<number | undefined>();
   const [type, setType] = useState<string>('title');
-  const [provider, setProvider] = useState<string>('gemini');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -40,7 +39,6 @@ export default function NewSuggestionPage() {
       setLoading(true);
       const res = await generateSuggestionApi({
         type,
-        provider,
         connected_account_id: targetType === 'own' ? selectedAccountId : undefined,
         tracked_channel_id: targetType === 'tracked' ? selectedChannelId : undefined,
       });
@@ -66,7 +64,7 @@ export default function NewSuggestionPage() {
               <Sparkles className="w-6 h-6 text-indigo-400" /> Generate AI Suggestion
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Select target account, AI provider, and suggestion type. Google Gemini or Claude AI will analyze video patterns to create optimized content ideas.
+              Select a target account and suggestion type to analyze video patterns and create optimized content ideas.
             </p>
           </div>
 
@@ -116,21 +114,6 @@ export default function NewSuggestionPage() {
                   ))}
                 </select>
               )}
-            </div>
-
-            {/* AI Provider Selection */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">AI Model Provider</label>
-              <select
-                value={provider}
-                onChange={(e) => setProvider(e.target.value)}
-                className="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white font-semibold"
-              >
-                <option value="gemini">Google Gemini AI (Recommended)</option>
-                <option value="claude">Anthropic Claude AI</option>
-                <option value="auto">Auto Detect Best Available Provider</option>
-                <option value="stub">Demo Stub Data (Offline / Testing)</option>
-              </select>
             </div>
 
             {/* Suggestion Type */}

@@ -54,7 +54,7 @@ export default function LandingPage() {
           </div>
           <h3 className="text-xl font-bold mb-3 text-white">AI Content Generation</h3>
           <p className="text-slate-400 text-sm leading-relaxed">
-            Powered by Claude AI. Produce viral title ideas, high-hook captions, hashtag sets, and 4-week content calendars.
+            AI-powered generation for viral titles, high-hook captions, hashtag sets, and 4-week content calendars.
           </p>
         </div>
 

@@ -19,14 +19,11 @@ import {
   Download,
   FileAudio,
   Brain,
-  Bot,
-  Cpu,
   Captions,
 } from "lucide-react";
 
 export default function VideoAnalysisPage() {
   const [url, setUrl] = useState('');
-  const [provider, setProvider] = useState<'auto' | 'gemini' | 'claude'>('auto');
   const [analyzing, setAnalyzing] = useState(false);
   const [step, setStep] = useState<'idle' | 'downloading' | 'transcribing' | 'analyzing'>('idle');
   const [currentAnalysis, setCurrentAnalysis] = useState<VideoAnalysis | null>(null);
@@ -73,7 +70,7 @@ export default function VideoAnalysisPage() {
     }, 9000);
 
     try {
-      const result = await analyzeVideoApi(url.trim(), provider);
+      const result = await analyzeVideoApi(url.trim());
       clearTimeout(progressTimer1);
       clearTimeout(progressTimer2);
       
@@ -106,52 +103,17 @@ export default function VideoAnalysisPage() {
           </h1>
           <p className="text-sm text-slate-400 max-w-2xl">
             Submit any YouTube video link. Transcripts are fetched instantly via YouTube captions when available,
-            or extracted with Whisper — then analyzed by{' '}
-            <span className={`font-semibold ${
-              provider === 'gemini' ? 'text-teal-400' : provider === 'claude' ? 'text-indigo-400' : 'text-slate-300'
-            }`}>
-              {provider === 'gemini' ? 'Google Gemini' : provider === 'claude' ? 'Anthropic Claude' : 'AI (auto-selected)'}
-            </span>.
+            or extracted with Whisper, then analyzed automatically.
           </p>
         </div>
 
         {/* Form Card */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm relative overflow-hidden">
           <form onSubmit={handleAnalyze} className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
                 YouTube Video URL
               </label>
-
-              {/* Provider Selection */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400 font-medium">AI Engine:</span>
-                <div className="inline-flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-                  {[
-                    { id: 'auto', label: 'Auto', icon: <Sparkles className="w-3 h-3" /> },
-                    { id: 'gemini', label: 'Gemini', icon: <Cpu className="w-3 h-3" /> },
-                    { id: 'claude', label: 'Claude', icon: <Bot className="w-3 h-3" /> },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setProvider(item.id as any)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                        provider === item.id 
-                          ? item.id === 'gemini'
-                            ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-md'
-                            : item.id === 'claude'
-                            ? 'bg-indigo-600 text-white shadow-md'
-                            : 'bg-slate-700 text-white shadow-md'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      {item.icon}
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -190,11 +152,7 @@ export default function VideoAnalysisPage() {
             <div className="mt-6 p-4 bg-slate-950/80 border border-indigo-900/50 rounded-xl space-y-4">
               <div className="flex items-center justify-between text-xs text-indigo-300 font-semibold">
                 <span>AI Processing Pipeline</span>
-                <span className={`animate-pulse font-medium ${
-                  provider === 'gemini' ? 'text-teal-400' : provider === 'claude' ? 'text-indigo-300' : 'text-indigo-300'
-                }`}>
-                  {provider === 'gemini' ? '⚡ Powered by Gemini' : provider === 'claude' ? '◆ Powered by Claude' : '✦ AI Auto-selected'}
-                </span>
+                <span className="animate-pulse font-medium text-indigo-300">Automated analysis</span>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -237,28 +195,16 @@ export default function VideoAnalysisPage() {
                 {/* Step 3: AI Analysis — dynamic label */}
                 <div className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${
                   step === 'analyzing'
-                    ? provider === 'gemini'
-                      ? 'bg-teal-950/40 border-teal-600/60 text-white'
-                      : 'bg-indigo-950/60 border-indigo-500 text-white'
+                    ? 'bg-indigo-950/60 border-indigo-500 text-white'
                     : 'bg-slate-900/40 border-slate-800 text-slate-500'
                 }`}>
-                  {provider === 'gemini' ? (
-                    <Cpu className={`w-4 h-4 shrink-0 ${
-                      step === 'analyzing' ? 'text-teal-400 animate-spin' : ''
-                    }`} />
-                  ) : provider === 'claude' ? (
-                    <Bot className={`w-4 h-4 shrink-0 ${
-                      step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''
-                    }`} />
-                  ) : (
-                    <Brain className={`w-4 h-4 shrink-0 ${
-                      step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''
-                    }`} />
-                  )}
+                  <Brain className={`w-4 h-4 shrink-0 ${
+                    step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''
+                  }`} />
                   <div className="text-xs font-medium">
-                    3. {provider === 'gemini' ? 'Gemini Analysis' : provider === 'claude' ? 'Claude Analysis' : 'AI Analysis'}
+                    3. AI Analysis
                     <p className="text-[10px] opacity-60 font-normal mt-0.5">
-                      {provider === 'gemini' ? 'Google Gemini' : provider === 'claude' ? 'Anthropic Claude' : 'Auto-selected model'}
+                      Content and visual insights
                     </p>
                   </div>
                 </div>
