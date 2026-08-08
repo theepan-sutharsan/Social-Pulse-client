@@ -16,11 +16,17 @@ import {
   History, 
   ArrowRight, 
   AlertCircle,
-  Download,
   FileAudio,
   Brain,
   Captions,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function VideoAnalysisPage() {
   const [url, setUrl] = useState('');
@@ -93,33 +99,27 @@ export default function VideoAnalysisPage() {
   return (
     <AuthenticatedRoute>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Header Title Section */}
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-950/60 border border-indigo-800/60 rounded-full text-indigo-400 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5" /> AI Powered Video Intelligence
-          </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            YouTube Video Analyzer
-          </h1>
-          <p className="text-sm text-slate-400 max-w-2xl">
-            Submit any YouTube video link. Transcripts are fetched instantly via YouTube captions when available,
-            or extracted with Whisper, then analyzed automatically.
-          </p>
-        </div>
+        <PageHeader
+          eyebrow="AI Powered Video Intelligence"
+          icon={<Sparkles className="w-5 h-5 text-indigo-400" />}
+          title="YouTube Video Analyzer"
+          description="Submit any YouTube video link. Transcripts are fetched instantly via YouTube captions when available, or extracted with Whisper, then analyzed automatically."
+        />
 
         {/* Form Card */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm relative overflow-hidden">
+        <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm relative overflow-hidden">
           <form onSubmit={handleAnalyze} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+              <Label htmlFor="youtube-video-url" className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
                 YouTube Video URL
-              </label>
+              </Label>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Video className="w-5 h-5 text-rose-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
+                <Input
+                  id="youtube-video-url"
                   type="url"
                   placeholder="https://www.youtube.com/watch?v=..."
                   value={url}
@@ -129,7 +129,7 @@ export default function VideoAnalysisPage() {
                   required
                 />
               </div>
-              <button
+              <Button
                 type="submit"
                 disabled={analyzing || !url.trim()}
                 className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
@@ -143,7 +143,7 @@ export default function VideoAnalysisPage() {
                     <Sparkles className="w-4 h-4" /> Start AI Analysis
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
 
@@ -219,7 +219,7 @@ export default function VideoAnalysisPage() {
               <span>{errorMsg}</span>
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Current Active Analysis Results */}
         {currentAnalysis && (
@@ -232,19 +232,22 @@ export default function VideoAnalysisPage() {
         )}
 
         {/* History List Section */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl">
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
               <History className="w-5 h-5 text-indigo-400" /> Past Video Analyses
-            </h2>
-            <span className="text-xs font-semibold px-2.5 py-1 bg-slate-800 text-slate-300 rounded-full">
+            </CardTitle>
+            <Badge variant="secondary" className="text-xs font-semibold px-2.5 py-1 bg-slate-800 text-slate-300 rounded-full">
               {history.length} Saved
-            </span>
-          </div>
+            </Badge>
+          </CardHeader>
 
+          <CardContent>
           {loadingHistory ? (
-            <div className="py-12 flex justify-center text-slate-500 text-xs font-semibold">
-              <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading history...
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Loading analysis history">
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
             </div>
           ) : history.length === 0 ? (
             <div className="py-12 text-center text-slate-500 text-xs">
@@ -288,7 +291,8 @@ export default function VideoAnalysisPage() {
               ))}
             </div>
           )}
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </AuthenticatedRoute>
   );

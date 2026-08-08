@@ -1,16 +1,21 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { AuthenticatedRoute } from "@/components/auth-guard";
-import { generateSuggestionApi } from "@/services/suggestions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
+import { Select } from "@/components/ui/select";
 import { getAccountsApi } from "@/services/accounts";
+import { generateSuggestionApi } from "@/services/suggestions";
 import { getTrackedChannelsApi } from "@/services/tracked-channels";
 import { ConnectedAccount } from "@/types/account";
 import { TrackedChannel } from "@/types/tracked-channel";
-import { Sparkles, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
-import Link from "next/link";
 
 export default function NewSuggestionPage() {
   const [accounts, setAccounts] = useState<ConnectedAccount[]>([]);
@@ -53,96 +58,101 @@ export default function NewSuggestionPage() {
 
   return (
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
         <Link href="/suggestions" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white">
-          <ArrowLeft className="w-4 h-4" /> Back to Suggestions
+          <ArrowLeft className="h-4 w-4" /> Back to Suggestions
         </Link>
 
-        <div className="p-8 bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl space-y-6">
-          <div>
-            <h1 className="text-2xl font-black text-white flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-indigo-400" /> Generate AI Suggestion
-            </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Select a target account and suggestion type to analyze video patterns and create optimized content ideas.
-            </p>
-          </div>
+        <PageHeader
+          eyebrow="AI Workspace"
+          title="Generate AI Suggestion"
+          description="Analyze video patterns from a selected source and create an optimized content strategy."
+          icon={<Sparkles className="h-5 w-5" />}
+        />
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Target Selection */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">Target Data Source</label>
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <button
-                  type="button"
-                  onClick={() => setTargetType('own')}
-                  className={`py-2.5 text-xs font-bold rounded-xl border ${
-                    targetType === 'own' ? "bg-indigo-600 text-white border-indigo-500" : "bg-slate-900 text-slate-400 border-slate-800"
-                  }`}
-                >
-                  My Connected Account
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTargetType('tracked')}
-                  className={`py-2.5 text-xs font-bold rounded-xl border ${
-                    targetType === 'tracked' ? "bg-indigo-600 text-white border-indigo-500" : "bg-slate-900 text-slate-400 border-slate-800"
-                  }`}
-                >
-                  Competitor Tracked Channel
-                </button>
+        <Card>
+          <CardHeader>
+            <CardTitle>Strategy configuration</CardTitle>
+            <CardDescription>Choose the data source and the content output you need.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-3">
+                <Label>Target Data Source</Label>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <Button
+                    type="button"
+                    onClick={() => setTargetType('own')}
+                    variant="outline"
+                    className={targetType === 'own'
+                      ? "border-indigo-500 bg-indigo-600 text-white hover:bg-indigo-500"
+                      : "border-slate-800 bg-slate-900 text-slate-400"}
+                    aria-pressed={targetType === 'own'}
+                  >
+                    My Connected Account
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setTargetType('tracked')}
+                    variant="outline"
+                    className={targetType === 'tracked'
+                      ? "border-indigo-500 bg-indigo-600 text-white hover:bg-indigo-500"
+                      : "border-slate-800 bg-slate-900 text-slate-400"}
+                    aria-pressed={targetType === 'tracked'}
+                  >
+                    Competitor Tracked Channel
+                  </Button>
+                </div>
+
+                {targetType === 'own' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="connected-account">Connected account</Label>
+                    <Select
+                      id="connected-account"
+                      value={selectedAccountId}
+                      onChange={(e) => setSelectedAccountId(Number(e.target.value))}
+                    >
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>{account.display_name} ({account.platform})</option>
+                      ))}
+                    </Select>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="tracked-channel">Tracked channel</Label>
+                    <Select
+                      id="tracked-channel"
+                      value={selectedChannelId}
+                      onChange={(e) => setSelectedChannelId(Number(e.target.value))}
+                    >
+                      {channels.map((channel) => (
+                        <option key={channel.id} value={channel.id}>{channel.channel_name} ({channel.niche || 'General'})</option>
+                      ))}
+                    </Select>
+                  </div>
+                )}
               </div>
 
-              {targetType === 'own' ? (
-                <select
-                  value={selectedAccountId}
-                  onChange={(e) => setSelectedAccountId(Number(e.target.value))}
-                  className="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
-                >
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>{a.display_name} ({a.platform})</option>
-                  ))}
-                </select>
-              ) : (
-                <select
-                  value={selectedChannelId}
-                  onChange={(e) => setSelectedChannelId(Number(e.target.value))}
-                  className="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
-                >
-                  {channels.map((c) => (
-                    <option key={c.id} value={c.id}>{c.channel_name} ({c.niche || 'General'})</option>
-                  ))}
-                </select>
-              )}
-            </div>
+              <div className="space-y-2 border-t border-slate-800 pt-6">
+                <Label htmlFor="suggestion-type">Suggestion Type</Label>
+                <Select id="suggestion-type" value={type} onChange={(e) => setType(e.target.value)} className="font-semibold">
+                  <option value="title">Viral Video Titles</option>
+                  <option value="caption">Social Captions (Short / Medium / Long)</option>
+                  <option value="hook">Video Hooks (First 10s)</option>
+                  <option value="hashtag">Hashtag Sets & Categories</option>
+                  <option value="thumbnail_concept">Thumbnail Visual Concepts</option>
+                  <option value="posting_time">Optimal Posting Times</option>
+                  <option value="content_calendar">4-Week Content Calendar</option>
+                </Select>
+              </div>
 
-            {/* Suggestion Type */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">Suggestion Type</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white font-semibold"
-              >
-                <option value="title">Viral Video Titles</option>
-                <option value="caption">Social Captions (Short / Medium / Long)</option>
-                <option value="hook">Video Hooks (First 10s)</option>
-                <option value="hashtag">Hashtag Sets & Categories</option>
-                <option value="thumbnail_concept">Thumbnail Visual Concepts</option>
-                <option value="posting_time">Optimal Posting Times</option>
-                <option value="content_calendar">4-Week Content Calendar</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2"
-            >
-              {loading ? "Analyzing Video Patterns..." : "Generate AI Strategy"}
-            </button>
-          </form>
-        </div>
+              <Button type="submit" disabled={loading} size="lg" className="w-full">
+                <Sparkles className="h-4 w-4" />
+                {loading ? "Analyzing Video Patterns..." : "Generate AI Strategy"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </AuthenticatedRoute>
   );

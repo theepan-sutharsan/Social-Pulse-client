@@ -10,6 +10,10 @@ import {
 import { YTAnalysisRun, YTVideoAnalysisEntry, YTOverallChannelInsights, YTContentSuggestion } from '@/types/yt-channel-analysis';
 import { toast } from 'sonner';
 import { YouTubeIcon } from '@/components/icons/youtube-icon';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/page-header';
 import {
   BarChart3,
   Sparkles,
@@ -653,22 +657,14 @@ export default function YTChannelAnalysisPage() {
   return (
     <AuthenticatedRoute>
       <div className="min-h-screen bg-[#030718]">
-        {/* Header */}
         <div className="border-b border-slate-800/60 bg-[#040a1e]/80 backdrop-blur-sm">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-900/40">
-                <YouTubeIcon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black text-white tracking-tight">
-                  YouTube Channel Analyzer
-                </h1>
-                <p className="text-slate-400 text-sm">
-                  AI-powered video idea generator & script creator
-                </p>
-              </div>
-            </div>
+          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+            <PageHeader
+              eyebrow="Content intelligence"
+              title="YouTube Channel Analyzer"
+              description="Analyze recent uploads, uncover channel patterns, and turn performance data into actionable content ideas."
+              icon={<YouTubeIcon className="h-6 w-6 text-red-400" />}
+            />
           </div>
         </div>
 
@@ -682,20 +678,21 @@ export default function YTChannelAnalysisPage() {
               </div>
               <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
                 {VIDEO_COUNT_OPTIONS.map((count) => (
-                  <button
+                  <Button
                     key={count}
                     id={`video-count-${count}`}
-                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setVideoCount(count)}
                     disabled={loading}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    className={`h-8 px-3 ${
                       videoCount === count
                         ? 'bg-slate-600 text-white shadow'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
                     {count}
-                  </button>
+                  </Button>
                 ))}
               </div>
               {videoCount < 50 && (
@@ -711,28 +708,29 @@ export default function YTChannelAnalysisPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                <input
+                <Input
                   id="yt-channel-url"
                   type="text"
                   value={channelUrl}
                   onChange={(e) => setChannelUrl(e.target.value)}
                   placeholder="https://youtube.com/@channelhandle or channel ID"
                   disabled={loading}
-                  className="w-full pl-10 pr-4 py-3.5 bg-slate-900/80 border border-slate-700/60 rounded-2xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 disabled:opacity-50 transition-all"
+                  className="h-12 rounded-2xl border-slate-700/60 bg-slate-900/80 pl-10 pr-4 focus:ring-indigo-500/50"
                 />
               </div>
-              <button
+              <Button
                 id="analyze-channel-btn"
                 type="submit"
+                size="lg"
                 disabled={loading || !channelUrl.trim()}
-                className="flex items-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-2xl shadow-lg shadow-indigo-600/30 transition-all shrink-0"
+                className="h-12 rounded-2xl"
               >
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
                 ) : (
                   <><Sparkles className="w-4 h-4" /> Analyze Channel</>
                 )}
-              </button>
+              </Button>
             </div>
 
             {/* Progress status */}
@@ -755,10 +753,11 @@ export default function YTChannelAnalysisPage() {
           {/* Tabs */}
           <div className="flex gap-1 p-1 bg-slate-900/60 border border-slate-800/60 rounded-xl w-fit">
             {(['analyze', 'history'] as const).map((tab) => (
-              <button
+              <Button
                 key={tab}
+                variant="ghost"
                 onClick={() => setActiveTab(tab)}
-                className={`px-5 py-2 text-sm font-semibold rounded-lg capitalize transition-all ${
+                className={`h-9 rounded-lg px-5 capitalize ${
                   activeTab === tab
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
                     : 'text-slate-400 hover:text-white'
@@ -773,7 +772,7 @@ export default function YTChannelAnalysisPage() {
                     <History className="w-3.5 h-3.5" /> History
                   </span>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -781,7 +780,8 @@ export default function YTChannelAnalysisPage() {
           {activeTab === 'analyze' && (
             <>
               {!currentRun && !loading && (
-                <div className="text-center py-16 space-y-4">
+                <Card className="bg-slate-900/60">
+                  <CardContent className="space-y-4 py-16 text-center">
                   <div className="w-16 h-16 rounded-2xl bg-indigo-950/60 border border-indigo-800/40 flex items-center justify-center mx-auto">
                     <BarChart3 className="w-8 h-8 text-indigo-400" />
                   </div>
@@ -789,7 +789,8 @@ export default function YTChannelAnalysisPage() {
                     Enter a YouTube channel URL above. The system will fetch the last 50 videos,
                     analyze transcripts, and generate content ideas with a full script.
                   </p>
-                </div>
+                  </CardContent>
+                </Card>
               )}
               {currentRun && currentRun.status === 'completed' && (
                 <div>

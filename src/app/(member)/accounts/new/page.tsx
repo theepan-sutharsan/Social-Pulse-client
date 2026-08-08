@@ -1,12 +1,18 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { AuthenticatedRoute } from "@/components/auth-guard";
-import { connectYoutubeApi, getOAuthUrlApi, oauthCallbackApi } from "@/services/accounts";
-import { Radio, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Radio } from "lucide-react";
+import { toast } from "sonner";
+import { AuthenticatedRoute } from "@/components/auth-guard";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
+import { Separator } from "@/components/ui/separator";
+import { connectYoutubeApi, getOAuthUrlApi, oauthCallbackApi } from "@/services/accounts";
 
 export default function NewAccountPage() {
   const [platform, setPlatform] = useState<'youtube' | 'instagram' | 'facebook' | 'tiktok'>('youtube');
@@ -49,76 +55,83 @@ export default function NewAccountPage() {
 
   return (
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
         <Link href="/accounts" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white">
-          <ArrowLeft className="w-4 h-4" /> Back to Accounts
+          <ArrowLeft className="h-4 w-4" /> Back to Accounts
         </Link>
 
-        <div className="p-8 bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl space-y-6">
-          <div>
-            <h1 className="text-2xl font-black text-white">Connect Platform Account</h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Select your platform to sync post metric snapshots and enable AI generation
-            </p>
-          </div>
+        <PageHeader
+          eyebrow="Account Setup"
+          title="Connect Platform Account"
+          description="Select your platform to sync post metric snapshots and enable AI generation."
+          icon={<Radio className="h-5 w-5" />}
+        />
 
-          <div className="grid grid-cols-4 gap-3">
-            {(['youtube', 'instagram', 'facebook', 'tiktok'] as const).map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setPlatform(p)}
-                className={`py-3 text-xs font-bold uppercase rounded-xl border transition ${
-                  platform === p
-                    ? "bg-indigo-600 text-white border-indigo-500 shadow-lg"
-                    : "bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-
-          {platform === 'youtube' ? (
-            <form onSubmit={handleYoutubeSubmit} className="space-y-4 pt-4 border-t border-slate-800">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  YouTube Channel ID, Handle (@handle), or URL
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={channelId}
-                  onChange={(e) => setChannelId(e.target.value)}
-                  placeholder="e.g. @TechGuruPro, UCVHFbw7woebKtX37QMs4Cng, or https://youtube.com/@TechGuruPro"
-                  className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                />
-                <p className="text-[11px] text-slate-500 mt-1">Accepts Channel Handles (@name), full YouTube channel URLs, or traditional Channel IDs</p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition"
-              >
-                {loading ? "Connecting..." : "Connect YouTube Channel"}
-              </button>
-            </form>
-          ) : (
-            <div className="pt-4 border-t border-slate-800 text-center space-y-4">
-              <p className="text-xs text-slate-300">
-                Connect your official <strong className="capitalize">{platform}</strong> account via OAuth 2.0.
-              </p>
-              <button
-                onClick={() => handleOAuthConnect(platform)}
-                disabled={loading}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg disabled:opacity-50"
-              >
-                {loading ? "Connecting..." : `Authenticate with ${platform.toUpperCase()}`}
-              </button>
+        <Card>
+          <CardHeader className="pb-4">
+            <Label>Choose a platform</Label>
+            <div className="grid grid-cols-2 gap-3 pt-2 sm:grid-cols-4">
+              {(['youtube', 'instagram', 'facebook', 'tiktok'] as const).map((p) => (
+                <Button
+                  key={p}
+                  type="button"
+                  onClick={() => setPlatform(p)}
+                  variant="outline"
+                  className={`h-11 uppercase ${
+                    platform === p
+                      ? "border-indigo-500 bg-indigo-600 text-white shadow-lg hover:bg-indigo-500"
+                      : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800"
+                  }`}
+                  aria-pressed={platform === p}
+                >
+                  {p}
+                </Button>
+              ))}
             </div>
-          )}
-        </div>
+          </CardHeader>
+
+          <Separator />
+
+          <CardContent className="pt-6">
+            {platform === 'youtube' ? (
+              <form onSubmit={handleYoutubeSubmit} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="youtube-channel">YouTube Channel ID, Handle (@handle), or URL</Label>
+                  <Input
+                    id="youtube-channel"
+                    type="text"
+                    required
+                    value={channelId}
+                    onChange={(e) => setChannelId(e.target.value)}
+                    placeholder="e.g. @TechGuruPro, UCVHFbw7woebKtX37QMs4Cng, or https://youtube.com/@TechGuruPro"
+                  />
+                  <p className="text-[11px] leading-5 text-slate-500">
+                    Accepts channel handles (@name), full YouTube channel URLs, or traditional channel IDs.
+                  </p>
+                </div>
+
+                <Button type="submit" disabled={loading} size="lg" className="w-full">
+                  {loading ? "Connecting..." : "Connect YouTube Channel"}
+                </Button>
+              </form>
+            ) : (
+              <div className="flex flex-col items-center space-y-5 py-4 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-indigo-800 bg-indigo-950 text-indigo-400">
+                  <Radio className="h-5 w-5" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-white capitalize">Connect {platform}</p>
+                  <p className="text-xs text-slate-300">
+                    Authenticate your official <strong className="capitalize">{platform}</strong> account via OAuth 2.0.
+                  </p>
+                </div>
+                <Button onClick={() => handleOAuthConnect(platform)} disabled={loading} size="lg">
+                  {loading ? "Connecting..." : `Authenticate with ${platform.toUpperCase()}`}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AuthenticatedRoute>
   );

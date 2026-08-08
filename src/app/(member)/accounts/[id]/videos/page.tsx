@@ -8,6 +8,11 @@ import { ExportButton } from "@/components/export-button";
 import { ArrowLeft, Eye, ThumbsUp, MessageSquare, Share2, Clock, LayoutGrid, List, Video as VideoIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function formatDuration(seconds?: number): string {
   if (!seconds) return "";
@@ -31,55 +36,76 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
 
   return (
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
+        <div className="flex items-center justify-between">
           <Link href="/accounts" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white">
-            <ArrowLeft className="w-4 h-4" /> Back to Accounts
+            <ArrowLeft className="h-4 w-4" /> Back to Accounts
           </Link>
           <ExportButton csvUrl="/api/videos/export" pdfUrl="/api/videos/export?format=pdf" baseFilename="account-videos" />
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-black text-white">Fetched Video Performance Snapshots</h1>
-            <p className="text-xs text-slate-400 mt-1">Live metrics, duration, tags, and snapshot performance data for synced videos</p>
-          </div>
-
-          {/* View Switcher Toggle */}
-          <div className="flex items-center gap-1 p-1 bg-slate-900 border border-slate-800 rounded-xl">
-            <button
+        <PageHeader
+          eyebrow="Performance Library"
+          title="Fetched Video Performance Snapshots"
+          description="Live metrics, duration, tags, and snapshot performance data for synced videos."
+          icon={<VideoIcon className="h-5 w-5" />}
+          actions={(
+            <div className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900 p-1">
+            <Button
               onClick={() => setViewMode('card')}
-              className={`p-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+              variant="ghost"
+              size="sm"
+              className={`h-8 ${
                 viewMode === 'card'
                   ? "bg-indigo-600 text-white shadow-md"
                   : "text-slate-400 hover:text-white hover:bg-slate-800"
               }`}
               title="Card View"
+              aria-pressed={viewMode === 'card'}
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">Cards</span>
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+              variant="ghost"
+              size="sm"
+              className={`h-8 ${
                 viewMode === 'list'
                   ? "bg-indigo-600 text-white shadow-md"
                   : "text-slate-400 hover:text-white hover:bg-slate-800"
               }`}
               title="List View"
+              aria-pressed={viewMode === 'list'}
             >
-              <List className="w-4 h-4" />
+              <List className="h-4 w-4" />
               <span className="hidden sm:inline">List</span>
-            </button>
-          </div>
-        </div>
+            </Button>
+            </div>
+          )}
+        />
 
         {loading ? (
-          <div className="text-center py-12 text-indigo-400">Loading videos...</div>
-        ) : videos.length === 0 ? (
-          <div className="p-12 text-center bg-[#0e172a] border border-slate-800 rounded-2xl text-slate-400">
-            No videos synced yet for this account.
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Loading videos">
+            {[0, 1, 2].map((item) => (
+              <Card key={item} className="overflow-hidden">
+                <Skeleton className="aspect-video w-full rounded-none" />
+                <CardContent className="space-y-3 pt-5">
+                  <Skeleton className="h-5 w-4/5" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
+        ) : videos.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center py-12 text-center text-slate-400">
+              <VideoIcon className="mb-4 h-8 w-8 text-indigo-400" />
+              <p className="text-sm font-semibold text-white">No videos synced yet</p>
+              <p className="mt-1 text-xs">Sync this account to populate its performance library.</p>
+            </CardContent>
+          </Card>
         ) : viewMode === 'card' ? (
           /* Grid Card View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -87,7 +113,7 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
               const defaultThumb = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=80";
               const thumbUrl = v.thumbnail_url || defaultThumb;
               return (
-                <div key={v.id} className="bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col justify-between group hover:border-indigo-500/50 transition duration-200">
+                <Card key={v.id} className="group flex flex-col justify-between overflow-hidden transition duration-200 hover:border-indigo-500/50">
                   <div>
                     {/* Thumbnail Header */}
                     <div className="relative aspect-video w-full bg-slate-900 overflow-hidden">
@@ -102,9 +128,9 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20" />
                       
                       {/* Platform Overlay */}
-                      <span className="absolute top-2.5 left-2.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md bg-slate-900/90 text-indigo-400 border border-slate-700/50 backdrop-blur-sm">
+                      <Badge variant="outline" className="absolute left-2.5 top-2.5 rounded-md border-slate-700/50 bg-slate-900/90 text-[10px] font-black uppercase tracking-wider text-indigo-400 backdrop-blur-sm">
                         {v.platform}
-                      </span>
+                      </Badge>
 
                       {/* Duration Overlay */}
                       {v.duration_seconds ? (
@@ -127,9 +153,9 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
                       {v.tags && v.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 pt-2">
                           {v.tags.slice(0, 3).map((tag, idx) => (
-                            <span key={idx} className="px-2 py-0.5 text-[10px] font-medium bg-slate-900 text-slate-400 border border-slate-800 rounded-md">
+                            <Badge key={idx} variant="outline" className="rounded-md border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-slate-400">
                               #{tag}
-                            </span>
+                            </Badge>
                           ))}
                         </div>
                       )}
@@ -157,13 +183,13 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
                       </span>
                     )}
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
         ) : (
           /* List View */
-          <div className="bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl overflow-hidden divide-y divide-slate-800/80">
+          <Card className="overflow-hidden divide-y divide-slate-800/80">
             <div className="p-4 bg-slate-900/60 hidden sm:grid grid-cols-12 gap-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
               <div className="col-span-5">Video Details</div>
               <div className="col-span-2 text-center">Duration / Published</div>
@@ -221,7 +247,7 @@ export default function AccountVideosPage({ params }: { params: Promise<{ id: st
                 </div>
               );
             })}
-          </div>
+          </Card>
         )}
       </div>
     </AuthenticatedRoute>

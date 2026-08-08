@@ -11,36 +11,25 @@ import {
 } from "@/services/channel-analytics";
 import Link from "next/link";
 import {
-  TrendingUp,
   DollarSign,
   Award,
   Users,
   Eye,
   Video,
   Zap,
-  Sparkles,
-  Search,
   ArrowUpRight,
-  ShieldCheck,
 } from "lucide-react";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  BarChart,
-  Bar,
-} from "recharts";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ChannelDetailView() {
   const params = useParams();
   const channelId = params?.id as string;
 
   const [detail, setDetail] = useState<any>(null);
-  const [growth, setGrowth] = useState<any>(null);
   const [revenue, setRevenue] = useState<any>(null);
   const [predictions, setPredictions] = useState<any>(null);
   const [topVideos, setTopVideos] = useState<any[]>([]);
@@ -53,7 +42,7 @@ export function ChannelDetailView() {
     if (!channelId) return;
     try {
       setLoading(true);
-      const [dRes, gRes, rRes, pRes, tvRes] = await Promise.all([
+      const [dRes, , rRes, pRes, tvRes] = await Promise.all([
         getChannelDetailApi(channelId),
         getChannelGrowthApi(channelId),
         getChannelRevenueApi(channelId, lowCpm, highCpm),
@@ -61,7 +50,6 @@ export function ChannelDetailView() {
         getChannelTopVideosApi(channelId),
       ]);
       setDetail(dRes);
-      setGrowth(gRes?.growth || null);
       setRevenue(rRes?.revenue_estimate || null);
       setPredictions(pRes || null);
       setTopVideos(tvRes?.top_videos || []);
@@ -87,9 +75,14 @@ export function ChannelDetailView() {
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-indigo-400">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500 mx-auto"></div>
-        <p className="mt-4 text-xs font-semibold text-slate-400">Loading SocialBlade-Style Channel Analytics...</p>
+      <div className="mx-auto max-w-7xl space-y-5 p-4 sm:p-6" aria-busy="true" aria-label="Loading channel analytics">
+        <Skeleton className="h-48" />
+        <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </div>
       </div>
     );
   }
@@ -100,7 +93,7 @@ export function ChannelDetailView() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6 text-slate-100">
       {/* Top Banner & Grade */}
-      <div className="p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-slate-800 rounded-3xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <Card className="p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-slate-800 rounded-3xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-5">
           {channel.profile_image ? (
             <img
@@ -116,9 +109,9 @@ export function ChannelDetailView() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-extrabold text-white">{channel.channel_name}</h1>
-              <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full text-xs font-bold uppercase tracking-wider">
+              <Badge className="px-3 py-1 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full text-xs font-bold uppercase tracking-wider">
                 {channel.platform || "YouTube"}
-              </span>
+              </Badge>
             </div>
             <p className="text-xs text-slate-400 mt-1 max-w-xl line-clamp-2">
               {channel.description || "Tracked public channel statistics, historical growth, and revenue estimations."}
@@ -131,7 +124,7 @@ export function ChannelDetailView() {
         </div>
 
         {/* SocialBlade Grade Box */}
-        <div className="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center gap-5 min-w-[200px] justify-between shadow-xl">
+        <Card className="p-5 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center gap-5 min-w-[200px] justify-between shadow-xl">
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Social Grade</p>
             <h2 className="text-4xl font-black text-emerald-400 mt-0.5">{analytics.channel_grade || "A"}</h2>
@@ -140,12 +133,12 @@ export function ChannelDetailView() {
           <div className="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
             <Award className="w-8 h-8" />
           </div>
-        </div>
-      </div>
+        </Card>
+      </Card>
 
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
+        <Card className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
           <div className="p-3 bg-indigo-950 text-indigo-400 rounded-xl">
             <Users className="w-5 h-5" />
           </div>
@@ -153,9 +146,9 @@ export function ChannelDetailView() {
             <p className="text-xs text-slate-400 font-semibold">Subscribers</p>
             <h4 className="text-xl font-bold text-white">{Number(channel.subscriber_count || 0).toLocaleString()}</h4>
           </div>
-        </div>
+        </Card>
 
-        <div className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
+        <Card className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
           <div className="p-3 bg-indigo-950 text-indigo-400 rounded-xl">
             <Eye className="w-5 h-5" />
           </div>
@@ -163,9 +156,9 @@ export function ChannelDetailView() {
             <p className="text-xs text-slate-400 font-semibold">Total Views</p>
             <h4 className="text-xl font-bold text-white">{Number(channel.total_views || 0).toLocaleString()}</h4>
           </div>
-        </div>
+        </Card>
 
-        <div className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
+        <Card className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
           <div className="p-3 bg-indigo-950 text-indigo-400 rounded-xl">
             <Video className="w-5 h-5" />
           </div>
@@ -173,9 +166,9 @@ export function ChannelDetailView() {
             <p className="text-xs text-slate-400 font-semibold">Total Videos</p>
             <h4 className="text-xl font-bold text-white">{channel.video_count || 0}</h4>
           </div>
-        </div>
+        </Card>
 
-        <div className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
+        <Card className="p-5 bg-[#0e172a] border border-slate-800 rounded-2xl flex items-center gap-4">
           <div className="p-3 bg-emerald-950 text-emerald-400 rounded-xl">
             <DollarSign className="w-5 h-5" />
           </div>
@@ -183,49 +176,50 @@ export function ChannelDetailView() {
             <p className="text-xs text-slate-400 font-semibold">Est. Monthly Revenue</p>
             <h4 className="text-xl font-bold text-emerald-400">{revenue?.monthly?.formatted || "$0.00"}</h4>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* SocialBlade Revenue Estimator & Config */}
-      <div className="p-6 bg-[#0e172a] border border-slate-800 rounded-2xl space-y-6 shadow-xl">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+      <Card className="bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl">
+        <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
           <div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-emerald-400" /> SocialBlade Estimated Earnings
-            </h3>
+            </CardTitle>
             <p className="text-xs text-slate-400 mt-0.5">Calculated using view volume & configurable CPM ranges.</p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
               <span className="text-slate-400">Low CPM ($):</span>
-              <input
+              <Input
                 type="number"
                 step="0.5"
                 value={lowCpm}
                 onChange={(e) => setLowCpm(Number(e.target.value))}
-                className="w-12 bg-slate-800 text-white rounded px-1 text-center border border-slate-700"
+                className="h-7 w-14 bg-slate-800 text-white rounded px-1 text-center border border-slate-700"
               />
             </div>
             <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
               <span className="text-slate-400">High CPM ($):</span>
-              <input
+              <Input
                 type="number"
                 step="0.5"
                 value={highCpm}
                 onChange={(e) => setHighCpm(Number(e.target.value))}
-                className="w-12 bg-slate-800 text-white rounded px-1 text-center border border-slate-700"
+                className="h-7 w-14 bg-slate-800 text-white rounded px-1 text-center border border-slate-700"
               />
             </div>
-            <button
+            <Button
               onClick={handleCpmUpdate}
               className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs"
             >
               Update
-            </button>
+            </Button>
           </div>
-        </div>
+        </CardHeader>
 
+        <CardContent className="pt-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-4 bg-slate-900/80 rounded-xl border border-slate-800">
             <p className="text-xs text-slate-400">Daily Estimate</p>
@@ -244,20 +238,22 @@ export function ChannelDetailView() {
             <p className="text-lg font-extrabold text-emerald-400 mt-1">{revenue?.lifetime?.formatted}</p>
           </div>
         </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Predictions & AI Growth Forecast */}
       {predictions && (
-        <div className="p-6 bg-[#0e172a] border border-slate-800 rounded-2xl space-y-5 shadow-xl">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+        <Card className="bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl">
+          <CardHeader className="flex-row justify-between items-center space-y-0">
+            <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
               <Zap className="w-5 h-5 text-amber-400" /> AI Growth & Milestone Predictions
-            </h3>
-            <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold">
+            </CardTitle>
+            <Badge variant="warning" className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold">
               Confidence: {predictions.subscriber_predictions?.confidence_percentage}%
-            </span>
-          </div>
+            </Badge>
+          </CardHeader>
 
+          <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {Object.entries(predictions.subscriber_predictions?.predictions || {}).map(([key, val]: [string, any]) => (
               <div key={key} className="p-3.5 bg-slate-900 rounded-xl border border-slate-800 text-center">
@@ -267,17 +263,20 @@ export function ChannelDetailView() {
               </div>
             ))}
           </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Top Videos List */}
-      <div className="p-6 bg-[#0e172a] border border-slate-800 rounded-2xl space-y-4 shadow-xl">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+      <Card className="bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl">
+        <CardHeader>
+        <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
           <Video className="w-5 h-5 text-indigo-400" /> Top Performing Videos & SEO Scores
-        </h3>
-        <div className="space-y-3">
+        </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
           {topVideos.slice(0, 10).map((v) => (
-            <div
+            <Card
               key={v.id || v.external_id}
               className="p-4 bg-slate-900/90 hover:bg-slate-800/90 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-800 transition"
             >
@@ -301,10 +300,10 @@ export function ChannelDetailView() {
               >
                 Analyze SEO & Viral Score <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
-            </div>
+            </Card>
           ))}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

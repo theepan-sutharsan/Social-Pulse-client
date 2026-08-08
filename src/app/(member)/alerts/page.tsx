@@ -1,11 +1,16 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { AuthenticatedRoute } from "@/components/auth-guard";
-import { getAlertsApi, markAlertReadApi } from "@/services/alerts";
-import { Alert } from "@/types/alert";
 import { Bell, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { AuthenticatedRoute } from "@/components/auth-guard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getAlertsApi, markAlertReadApi } from "@/services/alerts";
+import { Alert } from "@/types/alert";
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -36,34 +41,64 @@ export default function AlertsPage() {
 
   return (
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
-      <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
-        <h1 className="text-3xl font-black text-white flex items-center gap-2">
-          <Bell className="w-6 h-6 text-indigo-400" /> Notifications & Alerts
-        </h1>
+      <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
+        <PageHeader
+          eyebrow="Activity Center"
+          title="Notifications & Alerts"
+          description="Review account notifications and competitor performance signals."
+          icon={<Bell className="h-5 w-5" />}
+          actions={!loading && alerts.length > 0 ? <Badge variant="secondary">{alerts.length} total</Badge> : undefined}
+        />
 
         {loading ? (
-          <div className="text-center py-12 text-indigo-400">Loading alerts...</div>
+          <div className="space-y-3" aria-label="Loading alerts">
+            {[0, 1, 2].map((item) => (
+              <Card key={item} className="p-4">
+                <Skeleton className="mb-2 h-4 w-20" />
+                <Skeleton className="h-4 w-3/4" />
+              </Card>
+            ))}
+          </div>
+        ) : alerts.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center py-12 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-900">
+                <Bell className="h-5 w-5 text-slate-400" />
+              </div>
+              <p className="text-sm font-semibold text-white">You&apos;re all caught up</p>
+              <p className="mt-1 text-xs text-slate-400">No active notifications or competitor viral alerts.</p>
+            </CardContent>
+          </Card>
         ) : (
           <div className="space-y-3">
-            {alerts.length === 0 ? (
-              <div className="p-8 text-center bg-[#0e172a] rounded-2xl border border-slate-800 text-slate-400 text-xs">
-                No active notifications or competitor viral alerts.
-              </div>
-            ) : (
-              alerts.map((a) => (
-                <div key={a.id} className={`p-4 rounded-xl border flex items-center justify-between ${a.is_read ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-[#0e172a] border-indigo-800 text-white'}`}>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-indigo-400">{a.type}</span>
-                    <p className="text-xs font-semibold">{a.message}</p>
+            {alerts.map((alert) => (
+              <Card
+                key={alert.id}
+                className={alert.is_read ? "bg-slate-900 text-slate-400" : "border-indigo-800 bg-[#0e172a] text-white"}
+              >
+                <CardContent className="flex items-center justify-between gap-4 p-4">
+                  <div className="min-w-0 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <Badge className="uppercase tracking-wider">{alert.type}</Badge>
+                      {alert.is_read && <Badge variant="outline">Read</Badge>}
+                    </div>
+                    <p className="text-xs font-semibold leading-5">{alert.message}</p>
                   </div>
-                  {!a.is_read && (
-                    <button onClick={() => handleMarkRead(a.id)} className="p-1.5 text-indigo-400 hover:text-white">
-                      <CheckCircle className="w-4 h-4" />
-                    </button>
+                  {!alert.is_read && (
+                    <Button
+                      onClick={() => handleMarkRead(alert.id)}
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 text-indigo-400 hover:text-white"
+                      aria-label="Mark alert as read"
+                      title="Mark as read"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                    </Button>
                   )}
-                </div>
-              ))
-            )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </div>

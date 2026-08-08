@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { VideoAnalysis } from "@/types/video-analysis";
 import { 
   Sparkles, 
-  CheckCircle2, 
   AlertTriangle, 
   Search, 
   Eye, 
@@ -16,13 +15,26 @@ import {
   Tag,
   MessageSquare
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 interface VideoAnalysisDashboardProps {
   analysis: VideoAnalysis;
 }
 
+const analysisTabs = [
+  { id: 'overview', label: 'Executive Summary', icon: Sparkles },
+  { id: 'seo', label: 'SEO & Keywords', icon: Search },
+  { id: 'retention', label: 'Retention & Pacing', icon: Clock },
+  { id: 'thumbnail', label: 'Thumbnail Vision', icon: Eye },
+  { id: 'transcript', label: 'Full Transcript', icon: FileText },
+] as const;
+
+type AnalysisTab = (typeof analysisTabs)[number]['id'];
+
 export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'seo' | 'retention' | 'thumbnail' | 'transcript'>('overview');
+  const [activeTab, setActiveTab] = useState<AnalysisTab>('overview');
 
   const content = analysis.analysis_json || {};
   const thumbnail = analysis.thumbnail_analysis_json || {};
@@ -38,7 +50,7 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm relative overflow-hidden">
+      <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm relative overflow-hidden">
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
@@ -61,28 +73,25 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
           </div>
 
           <div className="flex items-center gap-4 shrink-0">
-            <div className={`flex flex-col items-center justify-center p-4 rounded-2xl border ${getScoreColor(overallScore)}`}>
+            <Badge className={`flex flex-col items-center justify-center p-4 rounded-2xl border ${getScoreColor(overallScore)}`}>
               <span className="text-xs uppercase font-bold tracking-wider opacity-80">Overall Score</span>
               <div className="text-3xl font-black">{overallScore.toFixed(1)}<span className="text-sm font-normal opacity-70">/10</span></div>
-            </div>
+            </Badge>
           </div>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex items-center gap-2 mt-8 border-t border-slate-800/80 pt-4 overflow-x-auto">
-          {[
-            { id: 'overview', label: 'Executive Summary', icon: Sparkles },
-            { id: 'seo', label: 'SEO & Keywords', icon: Search },
-            { id: 'retention', label: 'Retention & Pacing', icon: Clock },
-            { id: 'thumbnail', label: 'Thumbnail Vision', icon: Eye },
-            { id: 'transcript', label: 'Full Transcript', icon: FileText },
-          ].map((tab) => {
+          {analysisTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button
+              <Button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id)}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                aria-pressed={isActive}
                 className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl whitespace-nowrap transition-all ${
                   isActive 
                     ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30" 
@@ -91,28 +100,28 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
               >
                 <Icon className="w-3.5 h-3.5" />
                 {tab.label}
-              </button>
+              </Button>
             );
           })}
         </div>
-      </div>
+      </Card>
 
       {/* TAB 1: EXECUTIVE OVERVIEW */}
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Summary & Action Items */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+            <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
               <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-indigo-400" /> Executive Summary
               </h2>
               <p className="text-sm text-slate-300 leading-relaxed">
                 {content.summary || "Analysis generated successfully based on audio transcript and visual parameters."}
               </p>
-            </div>
+            </Card>
 
             {/* Top 3 Action Items */}
-            <div className="bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-800/40 rounded-2xl p-6">
+            <Card className="bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-800/40 rounded-2xl p-6">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <ListChecks className="w-5 h-5 text-indigo-400" /> Top 3 Growth Action Items
               </h2>
@@ -126,12 +135,12 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
 
             {/* Hook & Content Structure Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Hook Analysis */}
-              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-white flex items-center gap-2">
                     <Zap className="w-4 h-4 text-amber-400" /> Hook Analysis (0-30s)
@@ -146,10 +155,10 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
                     <strong>Suggestion:</strong> {content.hook_analysis.suggestion}
                   </div>
                 )}
-              </div>
+              </Card>
 
               {/* Content Structure */}
-              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-white flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-indigo-400" /> Structure & Pacing
@@ -164,14 +173,14 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
                     <strong>Suggestion:</strong> {content.content_structure.suggestion}
                   </div>
                 )}
-              </div>
+              </Card>
             </div>
           </div>
 
           {/* Right Column Metrics Card */}
           <div className="space-y-6">
             {/* Engagement Triggers */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-emerald-400" /> Engagement & CTA Audit
               </h3>
@@ -184,10 +193,10 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
               <p className="text-xs text-slate-300 leading-relaxed">
                 {content.engagement_triggers?.cta_feedback}
               </p>
-            </div>
+            </Card>
 
             {/* Thumbnail Quick Preview */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
+            <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Eye className="w-4 h-4 text-purple-400" /> Thumbnail Score
               </h3>
@@ -200,7 +209,7 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
               <p className="text-xs text-slate-300">
                 {thumbnail.visual_appeal || "Thumbnail visual analysis generated."}
               </p>
-            </div>
+            </Card>
           </div>
         </div>
       )}
@@ -208,13 +217,13 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
       {/* TAB 2: SEO & KEYWORDS */}
       {activeTab === 'seo' && (
         <div className="space-y-6">
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
+          <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
             <div>
               <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
                 <Tag className="w-5 h-5 text-indigo-400" /> Suggested Optimized Title
               </h2>
               <div className="p-4 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-indigo-200 text-sm font-semibold">
-                "{content.seo_keywords?.suggested_title || analysis.video_title}"
+                &quot;{content.seo_keywords?.suggested_title || analysis.video_title}&quot;
               </div>
             </div>
 
@@ -257,13 +266,13 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
                 ))}
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* TAB 3: RETENTION & PACING */}
       {activeTab === 'retention' && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
+        <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <Clock className="w-5 h-5 text-rose-400" /> Retention Risk Points & Fixes
           </h2>
@@ -283,12 +292,12 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* TAB 4: THUMBNAIL VISION */}
       {activeTab === 'thumbnail' && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
+        <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Eye className="w-5 h-5 text-purple-400" /> Vision Thumbnail Feedback
@@ -330,19 +339,19 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* TAB 5: TRANSCRIPT */}
       {activeTab === 'transcript' && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <Card className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <FileText className="w-5 h-5 text-indigo-400" /> Transcribed Audio Text
           </h2>
           <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">
             {analysis.transcript || "No transcript available."}
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );
