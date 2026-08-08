@@ -666,7 +666,7 @@ export default function YTChannelAnalysisPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-black text-white tracking-tight">
-                  YT Channel Analyzer
+                  YouTube Channel Analyzer
                 </h1>
                 <p className="text-slate-400 text-sm">
                   AI-powered video idea generator & script creator

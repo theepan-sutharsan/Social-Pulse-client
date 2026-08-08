@@ -44,7 +44,7 @@ export function NavigationBar() {
                 <Video className="w-4 h-4 text-indigo-400" /> Video Analyzer
               </Link>
               <Link href="/yt-channel-analysis" className="text-sm font-medium text-slate-300 hover:text-indigo-400 flex items-center gap-1.5 transition-colors">
-                <BarChart3 className="w-4 h-4 text-red-400" /> YT Channel
+                <BarChart3 className="w-4 h-4 text-red-400" /> YouTube Channel Analyzer
               </Link>
               {isAdmin && (
                 <Link href="/admin" className="text-sm font-semibold text-indigo-400 flex items-center gap-1 px-2.5 py-1 bg-indigo-950/60 border border-indigo-800/50 rounded-lg hover:bg-indigo-900/60 transition-colors">
@@ -141,7 +141,7 @@ export function NavigationBar() {
                 onClick={closeMobileMenu}
                 className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-indigo-950/40 hover:text-indigo-400 rounded-lg transition-colors"
               >
-                <BarChart3 className="w-4 h-4 text-red-400" /> YT Channel Analyzer
+                <BarChart3 className="w-4 h-4 text-red-400" /> YouTube Channel Analyzer
               </Link>
               {isAdmin && (
                 <Link
