@@ -38,7 +38,7 @@ export default function SuggestionDetailPage({ params }: { params: Promise<{ id:
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
       <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
         <div className="flex items-center justify-between">
-          <Link href="/suggestions" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white">
+          <Link href="/suggestions" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Back to Suggestions
           </Link>
           <ExportButton
@@ -57,26 +57,26 @@ export default function SuggestionDetailPage({ params }: { params: Promise<{ id:
         />
 
         <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0 border-b border-slate-800">
+          <CardHeader className="flex-row items-center justify-between space-y-0 border-b border-border">
             <div className="space-y-1.5">
-              <CardTitle className="flex items-center gap-2 text-sm text-indigo-300">
-                <Sparkles className="h-4 w-4 text-indigo-400" /> Generated Content Output
+              <CardTitle className="flex items-center gap-2 text-sm text-primary">
+                <Sparkles className="h-4 w-4" /> Generated Content Output
               </CardTitle>
               <CardDescription className="text-xs">Structured AI response for this strategy.</CardDescription>
             </div>
-            <span className="text-xs text-slate-500">{suggestion.created_at?.substring(0, 10)}</span>
+            <span className="text-xs text-muted-foreground">{suggestion.created_at?.substring(0, 10)}</span>
           </CardHeader>
           <CardContent className="pt-6">
-            <pre className="overflow-x-auto whitespace-pre-wrap rounded-xl border border-slate-800 bg-slate-900 p-6 text-xs leading-6 text-slate-200">
+            <pre className="overflow-x-auto whitespace-pre-wrap rounded-xl border border-border bg-muted p-6 text-xs leading-6 text-foreground">
               {JSON.stringify(suggestion.output, null, 2)}
             </pre>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 border-b border-slate-800">
+          <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 border-b border-border">
             <div className="space-y-1.5">
-              <CardTitle className="flex items-center gap-2 text-sm text-emerald-400">
+              <CardTitle className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
                 <Layers className="h-4 w-4" /> Pattern Source Videos
               </CardTitle>
               <CardDescription className="text-xs">Videos used to identify the patterns behind this strategy.</CardDescription>
@@ -90,9 +90,9 @@ export default function SuggestionDetailPage({ params }: { params: Promise<{ id:
                   const defaultThumb = "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=80";
                   const thumbUrl = sourceVideo.thumbnail_url || defaultThumb;
                   return (
-                    <Card key={sourceVideo.id} className="overflow-hidden bg-slate-900 shadow-none">
+                    <Card key={sourceVideo.id} className="overflow-hidden bg-muted/50 shadow-none">
                       <CardContent className="flex items-center gap-3 p-3">
-                        <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-800">
+                        <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
                           <img
                             src={thumbUrl}
                             alt={sourceVideo.title}
@@ -101,8 +101,8 @@ export default function SuggestionDetailPage({ params }: { params: Promise<{ id:
                           />
                         </div>
                         <div className="min-w-0 space-y-1">
-                          <p className="truncate text-xs font-semibold text-white">{sourceVideo.title}</p>
-                          <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                          <p className="truncate text-xs font-semibold text-foreground">{sourceVideo.title}</p>
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                             <Badge variant="outline" className="px-1.5 py-0 text-[9px] uppercase">{sourceVideo.platform}</Badge>
                             <span className="truncate">ID: {sourceVideo.external_id}</span>
                           </div>
@@ -114,8 +114,8 @@ export default function SuggestionDetailPage({ params }: { params: Promise<{ id:
               </div>
             ) : (
               <div className="flex flex-col items-center py-8 text-center">
-                <Video className="mb-3 h-6 w-6 text-slate-500" />
-                <p className="text-xs text-slate-400">No source videos are linked to this suggestion.</p>
+                <Video className="mb-3 h-6 w-6 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">No source videos are linked to this suggestion.</p>
               </div>
             )}
           </CardContent>

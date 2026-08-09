@@ -173,7 +173,7 @@ export default function AdminTrackedChannelsPage() {
       <Card className="overflow-hidden">
         <Table className="min-w-[680px] text-xs">
           <TableHeader>
-            <TableRow className="hover:bg-slate-900/60">
+            <TableRow className="hover:bg-muted/50">
               <TableHead>Channel Name</TableHead>
               <TableHead>Channel ID</TableHead>
               <TableHead>Niche</TableHead>
@@ -192,7 +192,7 @@ export default function AdminTrackedChannelsPage() {
 
             {!loading && channels.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="h-28 text-center text-slate-400">
+                <TableCell colSpan={4} className="h-28 text-center text-muted-foreground">
                   No tracked channels found. Add one above or import a CSV.
                 </TableCell>
               </TableRow>
@@ -201,13 +201,13 @@ export default function AdminTrackedChannelsPage() {
             {!loading &&
               channels.map((channel) => (
                 <TableRow key={channel.id}>
-                  <TableCell className="whitespace-nowrap font-bold text-white">{channel.channel_name}</TableCell>
-                  <TableCell className="whitespace-nowrap font-mono text-indigo-300">{channel.channel_id}</TableCell>
+                  <TableCell className="whitespace-nowrap font-bold text-foreground">{channel.channel_name}</TableCell>
+                  <TableCell className="whitespace-nowrap font-mono text-primary">{channel.channel_id}</TableCell>
                   <TableCell className="whitespace-nowrap">
                     {channel.niche ? (
                       <Badge variant="secondary">{channel.niche}</Badge>
                     ) : (
-                      <span className="text-slate-400">—</span>
+                      <span className="text-muted-foreground">&mdash;</span>
                     )}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-right">
@@ -215,7 +215,7 @@ export default function AdminTrackedChannelsPage() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="h-8 w-8 rounded-lg text-indigo-400"
+                        className="h-8 w-8 rounded-lg text-primary"
                         onClick={() => handleSync(channel.id)}
                         aria-label={`Sync ${channel.channel_name}`}
                         title="Sync channel"
@@ -225,7 +225,7 @@ export default function AdminTrackedChannelsPage() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="h-8 w-8 rounded-lg text-rose-400"
+                        className="h-8 w-8 rounded-lg text-rose-700 dark:text-rose-400"
                         onClick={() => handleDelete(channel.id)}
                         aria-label={`Remove ${channel.channel_name}`}
                         title="Remove channel"

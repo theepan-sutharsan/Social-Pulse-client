@@ -62,7 +62,7 @@ export default function AccountsPage() {
           actions={(
             <Link
               href="/accounts/new"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-colors hover:bg-indigo-500"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" /> Connect New Account
             </Link>
@@ -83,14 +83,14 @@ export default function AccountsPage() {
         ) : accounts.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center py-12 text-center">
-              <Video className="mb-4 h-8 w-8 text-indigo-400" />
+              <Video className="mb-4 h-8 w-8 text-primary" />
               <CardTitle>No accounts connected</CardTitle>
-              <p className="mt-2 max-w-md text-sm text-slate-400">
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 Connect a platform account to sync videos and start tracking performance.
               </p>
               <Link
                 href="/accounts/new"
-                className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-colors hover:bg-indigo-500"
+                className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" /> Connect an Account
               </Link>
@@ -107,20 +107,20 @@ export default function AccountsPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(acc.id)}
-                      className="h-8 w-8 text-slate-500 hover:text-rose-400"
+                      className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       aria-label={`Disconnect ${acc.display_name}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                   <CardTitle>{acc.display_name}</CardTitle>
-                  <p className="break-all text-xs text-slate-400">ID: {acc.platform_account_id}</p>
+                  <p className="break-all text-xs text-muted-foreground">ID: {acc.platform_account_id}</p>
                 </CardHeader>
 
-                <CardFooter className="justify-between gap-2 border-t border-slate-800 bg-slate-900/30 pt-4">
+                <CardFooter className="justify-between gap-2 border-t border-border bg-muted/30 pt-4">
                   <Link
                     href={`/accounts/${acc.id}/videos`}
-                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-slate-800 px-3 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700"
+                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-secondary px-3 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80"
                   >
                     <Video className="h-3.5 w-3.5" /> Videos
                   </Link>

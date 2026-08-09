@@ -1,5 +1,5 @@
 import React from "react";
 
 export function ModuleChunk06() {
-  return <div className="text-xs text-slate-400 p-2 rounded bg-slate-900 border border-slate-800">UI Module Chunk #06</div>;
+  return <div className="rounded border bg-card p-2 text-xs text-muted-foreground">UI Module Chunk #06</div>;
 }

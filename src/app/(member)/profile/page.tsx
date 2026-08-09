@@ -60,7 +60,7 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <Label htmlFor="full-name">Full Name</Label>
                 <div className="relative">
-                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="full-name"
                     type="text"
@@ -75,7 +75,7 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
-                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
@@ -90,10 +90,10 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">New Password</Label>
-                  <span className="text-[11px] text-slate-500">Optional</span>
+                  <span className="text-[11px] text-muted-foreground">Optional</span>
                 </div>
                 <div className="relative">
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
@@ -105,7 +105,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-800 pt-5">
+              <div className="border-t border-border pt-5">
                 <Button type="submit" disabled={loading} size="lg" className="w-full">
                   {loading ? "Saving Changes..." : "Save Profile"}
                 </Button>

@@ -34,7 +34,7 @@ export default function AdminAccountsPage() {
       <Card className="overflow-hidden">
         <Table className="min-w-[640px] text-xs">
           <TableHeader>
-            <TableRow className="hover:bg-slate-900/60">
+            <TableRow className="hover:bg-muted/50">
               <TableHead>User ID</TableHead>
               <TableHead>Platform</TableHead>
               <TableHead>Display Name</TableHead>
@@ -53,7 +53,7 @@ export default function AdminAccountsPage() {
 
             {!loading && accounts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="h-28 text-center text-slate-400">
+                <TableCell colSpan={4} className="h-28 text-center text-muted-foreground">
                   No connected accounts found.
                 </TableCell>
               </TableRow>
@@ -62,14 +62,14 @@ export default function AdminAccountsPage() {
             {!loading &&
               accounts.map((account) => (
                 <TableRow key={account.id}>
-                  <TableCell className="whitespace-nowrap font-mono text-slate-400">{account.user_id}</TableCell>
+                  <TableCell className="whitespace-nowrap font-mono text-muted-foreground">{account.user_id}</TableCell>
                   <TableCell className="whitespace-nowrap">
-                    <Badge className="border-transparent bg-transparent p-0 uppercase text-indigo-400">
+                    <Badge variant="outline" className="border-transparent bg-transparent p-0 uppercase text-primary">
                       {account.platform}
                     </Badge>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap font-semibold text-white">{account.display_name}</TableCell>
-                  <TableCell className="whitespace-nowrap text-slate-400">
+                  <TableCell className="whitespace-nowrap font-semibold text-foreground">{account.display_name}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">
                     {account.last_synced_at?.substring(0, 10) || "Never"}
                   </TableCell>
                 </TableRow>

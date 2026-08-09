@@ -55,12 +55,12 @@ function OAuthCallbackContent() {
   return (
     <AuthenticatedRoute>
       <div className="mx-auto my-16 max-w-md px-4">
-        <Card className="bg-slate-900 text-center">
+        <Card className="bg-card text-center text-card-foreground">
           {status === 'processing' && (
             <>
               <CardHeader className="items-center pb-3">
-                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-indigo-800 bg-indigo-950">
-                  <Loader2 className="h-7 w-7 animate-spin text-indigo-500" />
+                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+                  <Loader2 className="h-7 w-7 animate-spin text-primary" />
                 </div>
                 <CardTitle>Connecting your Meta Account...</CardTitle>
                 <CardDescription className="text-xs leading-5">
@@ -68,8 +68,8 @@ function OAuthCallbackContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
-                  <div className="h-full w-2/3 animate-pulse rounded-full bg-indigo-600" />
+                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full w-2/3 animate-pulse rounded-full bg-primary" />
                 </div>
               </CardContent>
             </>
@@ -77,11 +77,11 @@ function OAuthCallbackContent() {
 
           {status === 'success' && (
             <CardHeader className="items-center">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-emerald-800/50 bg-emerald-950/40">
-                <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-emerald-600/30 bg-emerald-500/10 dark:border-emerald-400/30">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
               </div>
               <CardTitle>Account Connected!</CardTitle>
-              <CardDescription className="text-xs text-slate-300">
+              <CardDescription className="text-xs">
                 Redirecting to your connected accounts manager...
               </CardDescription>
             </CardHeader>
@@ -90,13 +90,13 @@ function OAuthCallbackContent() {
           {status === 'error' && (
             <>
               <CardHeader className="items-center pb-3">
-                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-rose-800/50 bg-rose-950/40">
-                  <AlertCircle className="h-8 w-8 text-rose-500" />
+                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-destructive/30 bg-destructive/10">
+                  <AlertCircle className="h-8 w-8 text-destructive" />
                 </div>
                 <CardTitle>Connection Failed</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="rounded-xl border border-rose-800/50 bg-rose-950/40 p-3 text-xs leading-5 text-rose-300">{errorMsg}</p>
+                <p className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs leading-5 text-destructive">{errorMsg}</p>
                 <Button onClick={() => router.push('/accounts/new')} size="sm">Try Again</Button>
               </CardContent>
             </>
@@ -111,9 +111,9 @@ export default function OAuthCallbackPage() {
   return (
     <Suspense fallback={
       <div className="mx-auto my-16 max-w-md px-4">
-        <Card className="bg-slate-900 text-center">
+        <Card className="bg-card text-center text-card-foreground">
           <CardHeader className="items-center">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <CardTitle>Loading...</CardTitle>
           </CardHeader>
         </Card>

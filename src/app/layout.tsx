@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/providers/auth-provider";
-import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Social Pulse — AI Powered Video Reach & Content Intelligence",
-  description: "Connect YouTube, Instagram, Facebook & TikTok. Extract video reach patterns and generate AI titles, hooks, hashtags & calendars.",
+  description:
+    "Connect YouTube, Instagram, Facebook & TikTok. Extract video reach patterns and generate AI titles, hooks, hashtags & calendars.",
 };
 
 export default function RootLayout({
@@ -14,12 +16,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="antialiased bg-[#030718] text-slate-100 min-h-screen">
-        <AuthProvider>
-          {children}
-          <Toaster position="top-right" theme="dark" />
-        </AuthProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          storageKey="social-pulse-theme"
+        >
+          <AuthProvider>
+            {children}
+            <Toaster position="top-right" richColors />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

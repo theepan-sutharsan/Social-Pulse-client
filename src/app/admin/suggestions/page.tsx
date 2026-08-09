@@ -34,7 +34,7 @@ export default function AdminSuggestionsPage() {
       <Card className="overflow-hidden">
         <Table className="min-w-[720px] text-xs">
           <TableHeader>
-            <TableRow className="hover:bg-slate-900/60">
+            <TableRow className="hover:bg-muted/50">
               <TableHead>User ID</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Input Context</TableHead>
@@ -53,7 +53,7 @@ export default function AdminSuggestionsPage() {
 
             {!loading && suggestions.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="h-28 text-center text-slate-400">
+                <TableCell colSpan={4} className="h-28 text-center text-muted-foreground">
                   No AI suggestions found.
                 </TableCell>
               </TableRow>
@@ -62,16 +62,16 @@ export default function AdminSuggestionsPage() {
             {!loading &&
               suggestions.map((suggestion) => (
                 <TableRow key={suggestion.id}>
-                  <TableCell className="whitespace-nowrap font-mono text-slate-400">{suggestion.user_id}</TableCell>
+                  <TableCell className="whitespace-nowrap font-mono text-muted-foreground">{suggestion.user_id}</TableCell>
                   <TableCell className="whitespace-nowrap">
-                    <Badge className="border-transparent bg-transparent p-0 uppercase text-indigo-400">
+                    <Badge variant="outline" className="border-transparent bg-transparent p-0 uppercase text-primary">
                       {suggestion.type.replaceAll("_", " ")}
                     </Badge>
                   </TableCell>
-                  <TableCell className="max-w-xs truncate whitespace-nowrap text-slate-300 sm:max-w-md">
+                  <TableCell className="max-w-xs truncate whitespace-nowrap text-foreground sm:max-w-md">
                     {suggestion.input_context}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap text-slate-400">
+                  <TableCell className="whitespace-nowrap text-muted-foreground">
                     {suggestion.created_at?.substring(0, 10)}
                   </TableCell>
                 </TableRow>

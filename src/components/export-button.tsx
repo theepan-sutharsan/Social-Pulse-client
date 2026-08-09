@@ -34,7 +34,7 @@ export function ExportButton({ csvUrl, pdfUrl, baseFilename }: ExportButtonProps
         size="sm"
         onClick={() => handleExport(csvUrl, "csv")}
         disabled={downloading}
-        className="border border-slate-700 text-indigo-300"
+        className="border border-border text-primary"
       >
         <FileSpreadsheet className="h-3.5 w-3.5" />
         CSV

@@ -46,14 +46,14 @@ export function ImportDialog({ onSuccess }: { onSuccess: () => void }) {
         variant="secondary"
         size="sm"
         onClick={() => setOpen(true)}
-        className="border border-slate-700 text-emerald-400"
+        className="border border-border text-emerald-700 dark:text-emerald-400"
       >
         <Upload className="h-3.5 w-3.5" />
         Import CSV
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
           <Card
             role="dialog"
             aria-modal="true"
@@ -70,13 +70,13 @@ export function ImportDialog({ onSuccess }: { onSuccess: () => void }) {
               <X className="h-4 w-4" />
             </Button>
 
-            <CardHeader className="border-b border-slate-800 pr-14">
-              <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-indigo-400">
+            <CardHeader className="border-b border-border pr-14">
+              <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Upload className="h-4 w-4" />
               </div>
               <CardTitle id="import-dialog-title">Import Tracked Channels</CardTitle>
               <CardDescription className="text-xs leading-5">
-                Upload a CSV containing <code className="text-indigo-400">channel_id, channel_name, niche</code> columns.
+                Upload a CSV containing <code className="font-medium text-primary">channel_id, channel_name, niche</code> columns.
               </CardDescription>
             </CardHeader>
 
@@ -89,19 +89,19 @@ export function ImportDialog({ onSuccess }: { onSuccess: () => void }) {
                     type="file"
                     accept=".csv"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="h-auto cursor-pointer py-2 text-xs text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-indigo-500"
+                    className="h-auto cursor-pointer py-2 text-xs text-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-xs file:font-semibold file:text-primary-foreground hover:file:bg-primary/90"
                   />
-                  <p className="text-xs text-slate-400">Only .csv files are accepted.</p>
+                  <p className="text-xs text-muted-foreground">Only .csv files are accepted.</p>
                 </div>
 
                 {result && (
-                  <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-900 p-3 text-xs">
-                    <div className="flex items-center gap-2 font-semibold text-emerald-400">
+                  <div className="space-y-2 rounded-xl border border-border bg-muted/50 p-3 text-xs">
+                    <div className="flex items-center gap-2 font-semibold text-emerald-700 dark:text-emerald-400">
                       <CheckCircle className="h-4 w-4" />
                       <span>Created: {result.created} · Skipped: {result.skipped}</span>
                     </div>
                     {result.errors && result.errors.length > 0 && (
-                      <div className="space-y-1 text-rose-400">
+                      <div className="space-y-1 text-rose-700 dark:text-rose-400">
                         <div className="flex items-center gap-2 font-semibold">
                           <AlertTriangle className="h-4 w-4" />
                           Import issues
@@ -116,7 +116,7 @@ export function ImportDialog({ onSuccess }: { onSuccess: () => void }) {
                   </div>
                 )}
 
-                <div className="flex justify-end gap-2 border-t border-slate-800 pt-4">
+                <div className="flex justify-end gap-2 border-t border-border pt-4">
                   <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(false)}>
                     Close
                   </Button>

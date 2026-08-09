@@ -56,7 +56,7 @@ export default function SuggestionsPage() {
               <ExportButton csvUrl="/api/suggestions/export" baseFilename="ai-suggestions" />
               <Link
                 href="/suggestions/new"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-colors hover:bg-indigo-500"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" /> Generate New
               </Link>
@@ -78,16 +78,16 @@ export default function SuggestionsPage() {
         ) : suggestions.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center py-12 text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-indigo-800 bg-indigo-950">
-                <Sparkles className="h-5 w-5 text-indigo-400" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+                <Sparkles className="h-5 w-5 text-primary" />
               </div>
-              <p className="text-sm font-semibold text-white">No suggestions generated yet</p>
-              <p className="mt-1 max-w-md text-xs leading-5 text-slate-400">
+              <p className="text-sm font-semibold text-foreground">No suggestions generated yet</p>
+              <p className="mt-1 max-w-md text-xs leading-5 text-muted-foreground">
                 Generate your first AI strategy from a connected account or tracked channel.
               </p>
               <Link
                 href="/suggestions/new"
-                className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-colors hover:bg-indigo-500"
+                className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" /> Generate Suggestion
               </Link>
@@ -104,20 +104,20 @@ export default function SuggestionsPage() {
                       onClick={() => handleDelete(suggestion.id)}
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-slate-500 hover:text-rose-400"
+                      className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       aria-label="Delete suggestion"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="line-clamp-3 text-sm font-medium leading-6 text-slate-300">{suggestion.input_context}</p>
+                  <p className="line-clamp-3 text-sm font-medium leading-6 text-foreground">{suggestion.input_context}</p>
                 </CardHeader>
 
-                <CardFooter className="justify-between gap-3 border-t border-slate-800 bg-slate-900/30 pt-4">
-                  <span className="text-xs text-slate-500">{suggestion.created_at?.substring(0, 10)}</span>
+                <CardFooter className="justify-between gap-3 border-t border-border bg-muted/30 pt-4">
+                  <span className="text-xs text-muted-foreground">{suggestion.created_at?.substring(0, 10)}</span>
                   <Link
                     href={`/suggestions/${suggestion.id}`}
-                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition-colors hover:bg-indigo-500"
+                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                   >
                     <Sparkles className="h-3.5 w-3.5" /> View Strategy
                   </Link>

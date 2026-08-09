@@ -39,8 +39,8 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-[85vh] items-center justify-center px-4 py-10">
       <Card className="w-full max-w-md overflow-hidden shadow-2xl">
-        <CardHeader className="items-center border-b border-slate-800 px-6 pb-6 pt-8 text-center sm:px-8">
-          <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/40">
+        <CardHeader className="items-center border-b border-border px-6 pb-6 pt-8 text-center sm:px-8">
+          <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <Activity className="h-6 w-6" />
           </div>
           <CardTitle className="text-2xl font-black">Welcome back</CardTitle>
@@ -54,7 +54,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label htmlFor="email">Email address</Label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
@@ -71,7 +71,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
@@ -91,14 +91,14 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
-            <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             <span>Your session is securely protected</span>
           </div>
 
-          <p className="mt-6 text-center text-xs text-slate-400">
+          <p className="mt-6 text-center text-xs text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/register" className="font-semibold text-indigo-400 hover:underline">
+            <Link href="/auth/register" className="font-semibold text-primary underline-offset-4 hover:underline">
               Create account
             </Link>
           </p>

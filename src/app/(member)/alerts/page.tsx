@@ -62,11 +62,11 @@ export default function AlertsPage() {
         ) : alerts.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center py-12 text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-900">
-                <Bell className="h-5 w-5 text-slate-400" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-muted">
+                <Bell className="h-5 w-5 text-muted-foreground" />
               </div>
-              <p className="text-sm font-semibold text-white">You&apos;re all caught up</p>
-              <p className="mt-1 text-xs text-slate-400">No active notifications or competitor viral alerts.</p>
+              <p className="text-sm font-semibold text-foreground">You&apos;re all caught up</p>
+              <p className="mt-1 text-xs text-muted-foreground">No active notifications or competitor viral alerts.</p>
             </CardContent>
           </Card>
         ) : (
@@ -74,7 +74,9 @@ export default function AlertsPage() {
             {alerts.map((alert) => (
               <Card
                 key={alert.id}
-                className={alert.is_read ? "bg-slate-900 text-slate-400" : "border-indigo-800 bg-[#0e172a] text-white"}
+                className={alert.is_read
+                  ? "bg-muted/40 text-muted-foreground"
+                  : "border-primary/30 bg-primary/5 text-card-foreground"}
               >
                 <CardContent className="flex items-center justify-between gap-4 p-4">
                   <div className="min-w-0 space-y-1.5">
@@ -89,7 +91,7 @@ export default function AlertsPage() {
                       onClick={() => handleMarkRead(alert.id)}
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 text-indigo-400 hover:text-white"
+                      className="h-9 w-9 text-primary hover:bg-primary/10 hover:text-primary"
                       aria-label="Mark alert as read"
                       title="Mark as read"
                     >

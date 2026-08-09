@@ -52,8 +52,8 @@ export default function AdminDashboardPage() {
         {metrics.map(({ key, label, icon: Icon }) => (
           <Card key={key} className="overflow-hidden">
             <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-indigo-400">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-4 w-4" />
               </div>
             </CardHeader>
@@ -61,9 +61,9 @@ export default function AdminDashboardPage() {
               {loading ? (
                 <Skeleton className="h-9 w-16" />
               ) : (
-                <p className="text-3xl font-black tracking-tight text-white">{counts[key]}</p>
+                <p className="text-3xl font-black tracking-tight text-card-foreground">{counts[key]}</p>
               )}
-              <p className="mt-2 text-xs text-slate-400">Available across the platform</p>
+              <p className="mt-2 text-xs text-muted-foreground">Available across the platform</p>
             </CardContent>
           </Card>
         ))}

@@ -80,7 +80,7 @@ export function ChannelListView() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6 text-slate-100">
+    <div className="mx-auto max-w-7xl space-y-8 p-4 text-foreground sm:p-6">
       <PageHeader
         eyebrow="Channel intelligence"
         icon={<Video className="w-6 h-6 text-red-500" />}
@@ -88,7 +88,7 @@ export function ChannelListView() {
         description="Track competitor stats, historical subscriber growth, CPM earnings, and predictions."
         actions={<Button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30"
+          className="rounded-xl px-4 py-2.5 text-xs font-bold"
         >
           <Plus className="w-4 h-4" /> Add Channel to Track
         </Button>}
@@ -102,15 +102,15 @@ export function ChannelListView() {
           <Skeleton className="h-64" />
         </div>
       ) : channels.length === 0 ? (
-        <Card className="p-12 bg-[#0e172a] border border-slate-800 rounded-2xl text-center space-y-4">
-          <Radio className="w-12 h-12 text-indigo-400 mx-auto" />
-          <h3 className="text-lg font-bold text-white">No Tracked Channels Yet</h3>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
+        <Card className="space-y-4 rounded-2xl border-border bg-card p-12 text-center">
+          <Radio className="mx-auto h-12 w-12 text-primary" />
+          <h3 className="text-lg font-bold text-foreground">No Tracked Channels Yet</h3>
+          <p className="mx-auto max-w-md text-xs text-muted-foreground">
             Add a YouTube channel by handle (e.g. `@TechGuruPro`), channel ID, or URL to start SocialBlade-style tracking.
           </p>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs"
+            className="rounded-xl px-4 py-2 text-xs font-bold"
           >
             + Add First Channel
           </Button>
@@ -120,7 +120,7 @@ export function ChannelListView() {
           {channels.map((ch: any) => (
             <Card
               key={ch.id}
-              className="bg-[#0e172a] border border-slate-800 hover:border-indigo-500/50 rounded-2xl shadow-xl transition flex flex-col justify-between"
+              className="flex flex-col justify-between rounded-2xl border-border bg-card shadow-sm transition hover:border-primary/50"
             >
               <CardHeader className="space-y-4 pb-3">
                 <div className="flex items-start justify-between gap-3">
@@ -128,51 +128,51 @@ export function ChannelListView() {
                     {ch.profile_image ? (
                       <img src={ch.profile_image} alt={ch.channel_name} className="w-12 h-12 rounded-xl object-cover" />
                     ) : (
-                      <div className="w-12 h-12 rounded-xl bg-indigo-950 border border-indigo-500/30 flex items-center justify-center font-bold text-indigo-400">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 font-bold text-primary">
                         {ch.channel_name?.substring(0, 2) || "YT"}
                       </div>
                     )}
                     <div>
-                      <h3 className="font-bold text-white text-base line-clamp-1">{ch.channel_name}</h3>
-                      <p className="text-[11px] font-mono text-indigo-400">{ch.channel_id}</p>
+                      <h3 className="line-clamp-1 text-base font-bold text-foreground">{ch.channel_name}</h3>
+                      <p className="font-mono text-[11px] text-primary">{ch.channel_id}</p>
                     </div>
                   </div>
                   <Button
                     onClick={() => handleDelete(ch.id)}
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg"
+                    className="h-8 w-8 rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     aria-label={`Remove ${ch.channel_name}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
+                <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/50 p-3 text-xs">
                   <div>
-                    <span className="text-slate-400 block text-[10px]">Subscribers</span>
-                    <span className="font-bold text-white">{Number(ch.subscriber_count || 0).toLocaleString()}</span>
+                    <span className="block text-[10px] text-muted-foreground">Subscribers</span>
+                    <span className="font-bold text-foreground">{Number(ch.subscriber_count || 0).toLocaleString()}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px]">Total Views</span>
-                    <span className="font-bold text-white">{Number(ch.total_views || 0).toLocaleString()}</span>
+                    <span className="block text-[10px] text-muted-foreground">Total Views</span>
+                    <span className="font-bold text-foreground">{Number(ch.total_views || 0).toLocaleString()}</span>
                   </div>
                 </div>
               </CardHeader>
 
-              <CardFooter className="flex items-center justify-between gap-3 border-t border-slate-800 p-6 pt-4">
+              <CardFooter className="flex items-center justify-between gap-3 border-t border-border p-6 pt-4">
                 <Button
                   onClick={() => handleSync(ch.id)}
                   variant="secondary"
                   size="sm"
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+                  className="rounded-lg px-3 py-1.5 text-xs font-semibold"
                 >
                   <RefreshCw className="w-3.5 h-3.5" /> Sync Latest
                 </Button>
 
                 <Link
                   href={`/channels/${ch.channel_id}`}
-                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-lg"
+                  className="flex items-center gap-1 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90"
                 >
                   SocialBlade Analytics <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -185,42 +185,42 @@ export function ChannelListView() {
       {/* Modal: Add Tracked Channel */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <Card className="bg-[#0e172a] border border-slate-800 rounded-2xl max-w-md w-full shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="add-channel-title">
+          <Card className="w-full max-w-md rounded-2xl border-border bg-popover text-popover-foreground shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="add-channel-title">
             <CardHeader>
-              <h3 id="add-channel-title" className="text-lg font-bold text-white">Add YouTube Channel to Track</h3>
-              <p className="text-xs text-slate-400">Enter channel handle (e.g. `@MrBeast`), URL, or YouTube channel ID.</p>
+              <h3 id="add-channel-title" className="text-lg font-bold text-foreground">Add YouTube Channel to Track</h3>
+              <p className="text-xs text-muted-foreground">Enter channel handle (e.g. `@MrBeast`), URL, or YouTube channel ID.</p>
             </CardHeader>
             <CardContent className="space-y-4">
 
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400">
+              <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleAddChannel} className="space-y-4">
               <div>
-                <Label className="block text-xs font-semibold text-slate-300 mb-1" htmlFor="channel-identifier">Channel Handle / ID / URL</Label>
+                <Label className="mb-1 block text-xs font-semibold text-foreground" htmlFor="channel-identifier">Channel Handle / ID / URL</Label>
                 <Input
                   id="channel-identifier"
                   type="text"
                   placeholder="@TechGuruPro"
                   value={inputVal}
                   onChange={(e) => setInputVal(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full rounded-xl border-input bg-background p-3 text-sm text-foreground"
                   required
                 />
               </div>
 
               <div>
-                <Label className="block text-xs font-semibold text-slate-300 mb-1" htmlFor="channel-niche">Niche (Optional)</Label>
+                <Label className="mb-1 block text-xs font-semibold text-foreground" htmlFor="channel-niche">Niche (Optional)</Label>
                 <Input
                   id="channel-niche"
                   type="text"
                   placeholder="Tech & Gadgets"
                   value={nicheVal}
                   onChange={(e) => setNicheVal(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full rounded-xl border-input bg-background p-3 text-sm text-foreground"
                 />
               </div>
 
@@ -228,14 +228,15 @@ export function ChannelListView() {
                 <Button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-bold rounded-xl"
+                  variant="secondary"
+                  className="rounded-xl px-4 py-2 text-xs font-bold"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={adding}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl"
+                  className="rounded-xl px-4 py-2 text-xs font-bold"
                 >
                   {adding ? "Enriching & Adding..." : "Add & Track"}
                 </Button>

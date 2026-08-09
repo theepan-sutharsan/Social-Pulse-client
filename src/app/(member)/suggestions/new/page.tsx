@@ -59,7 +59,7 @@ export default function NewSuggestionPage() {
   return (
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
       <div className="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-        <Link href="/suggestions" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white">
+        <Link href="/suggestions" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Suggestions
         </Link>
 
@@ -85,8 +85,8 @@ export default function NewSuggestionPage() {
                     onClick={() => setTargetType('own')}
                     variant="outline"
                     className={targetType === 'own'
-                      ? "border-indigo-500 bg-indigo-600 text-white hover:bg-indigo-500"
-                      : "border-slate-800 bg-slate-900 text-slate-400"}
+                      ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground"}
                     aria-pressed={targetType === 'own'}
                   >
                     My Connected Account
@@ -96,8 +96,8 @@ export default function NewSuggestionPage() {
                     onClick={() => setTargetType('tracked')}
                     variant="outline"
                     className={targetType === 'tracked'
-                      ? "border-indigo-500 bg-indigo-600 text-white hover:bg-indigo-500"
-                      : "border-slate-800 bg-slate-900 text-slate-400"}
+                      ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground"}
                     aria-pressed={targetType === 'tracked'}
                   >
                     Competitor Tracked Channel
@@ -133,7 +133,7 @@ export default function NewSuggestionPage() {
                 )}
               </div>
 
-              <div className="space-y-2 border-t border-slate-800 pt-6">
+              <div className="space-y-2 border-t border-border pt-6">
                 <Label htmlFor="suggestion-type">Suggestion Type</Label>
                 <Select id="suggestion-type" value={type} onChange={(e) => setType(e.target.value)} className="font-semibold">
                   <option value="title">Viral Video Titles</option>
