@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import {
   Activity,
   Bell,
+  BrainCircuit,
   LayoutDashboard,
   Library,
   Lightbulb,
@@ -46,6 +47,7 @@ const workspaceGroups: NavGroup[] = [
       { href: "/suggestions", label: "AI suggestions", icon: Lightbulb },
       { href: "/video-analysis", label: "Video analyzer", icon: Video },
       { href: "/yt-channel-analysis", label: "YouTube analyzer", icon: YouTubeIcon },
+      { href: "/youtube-audience-intelligence", label: "Audience intelligence", icon: BrainCircuit },
     ],
   },
   {
