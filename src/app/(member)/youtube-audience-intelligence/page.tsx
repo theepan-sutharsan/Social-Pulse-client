@@ -39,6 +39,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 import { Select } from "@/components/ui/select";
+import { API_URL } from "@/lib/api-client";
 import {
   estimateAudienceAnalysisApi,
   getAudienceCommentsApi,
@@ -56,7 +57,6 @@ import type {
   AudienceUsage,
 } from "@/types/youtube-audience-intelligence";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
 const ACTIVE_STATUSES: AudienceRunStatus[] = ["PENDING", "FETCHING", "PREPROCESSING", "CLASSIFYING", "CLUSTERING", "ANALYZING", "AGGREGATING", "SUMMARIZING"];
 const COLORS = ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#e11d48", "#8b5cf6"];
 
