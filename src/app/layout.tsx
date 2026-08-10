@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Social Pulse — AI Powered Video Reach & Content Intelligence",
+  title: "Social Pulse",
   description:
     "Connect YouTube, Instagram, Facebook & TikTok. Extract video reach patterns and generate AI titles, hooks, hashtags & calendars.",
 };
