@@ -16,17 +16,20 @@ import {
   History, 
   ArrowRight, 
   AlertCircle,
-  Download,
   FileAudio,
   Brain,
-  Bot,
-  Cpu,
   Captions,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function VideoAnalysisPage() {
   const [url, setUrl] = useState('');
-  const [provider, setProvider] = useState<'auto' | 'gemini' | 'claude'>('auto');
   const [analyzing, setAnalyzing] = useState(false);
   const [step, setStep] = useState<'idle' | 'downloading' | 'transcribing' | 'analyzing'>('idle');
   const [currentAnalysis, setCurrentAnalysis] = useState<VideoAnalysis | null>(null);
@@ -73,7 +76,7 @@ export default function VideoAnalysisPage() {
     }, 9000);
 
     try {
-      const result = await analyzeVideoApi(url.trim(), provider);
+      const result = await analyzeVideoApi(url.trim());
       clearTimeout(progressTimer1);
       clearTimeout(progressTimer2);
       
@@ -96,81 +99,40 @@ export default function VideoAnalysisPage() {
   return (
     <AuthenticatedRoute>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Header Title Section */}
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-950/60 border border-indigo-800/60 rounded-full text-indigo-400 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5" /> AI Powered Video Intelligence
-          </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            YouTube Video Analyzer
-          </h1>
-          <p className="text-sm text-slate-400 max-w-2xl">
-            Submit any YouTube video link. Transcripts are fetched instantly via YouTube captions when available,
-            or extracted with Whisper — then analyzed by{' '}
-            <span className={`font-semibold ${
-              provider === 'gemini' ? 'text-teal-400' : provider === 'claude' ? 'text-indigo-400' : 'text-slate-300'
-            }`}>
-              {provider === 'gemini' ? 'Google Gemini' : provider === 'claude' ? 'Anthropic Claude' : 'AI (auto-selected)'}
-            </span>.
-          </p>
-        </div>
+        <PageHeader
+          eyebrow="AI Powered Video Intelligence"
+          icon={<Sparkles className="h-5 w-5 text-primary" />}
+          title="YouTube Video Analyzer"
+          description="Submit any YouTube video link. Transcripts are fetched instantly via YouTube captions when available, or extracted with Whisper, then analyzed automatically."
+        />
 
         {/* Form Card */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm relative overflow-hidden">
+        <Card className="relative overflow-hidden rounded-2xl border-border bg-card p-6 shadow-sm">
           <form onSubmit={handleAnalyze} className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+            <div>
+              <Label htmlFor="youtube-video-url" className="block text-xs font-bold text-foreground uppercase tracking-wider">
                 YouTube Video URL
-              </label>
-
-              {/* Provider Selection */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400 font-medium">AI Engine:</span>
-                <div className="inline-flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-                  {[
-                    { id: 'auto', label: 'Auto', icon: <Sparkles className="w-3 h-3" /> },
-                    { id: 'gemini', label: 'Gemini', icon: <Cpu className="w-3 h-3" /> },
-                    { id: 'claude', label: 'Claude', icon: <Bot className="w-3 h-3" /> },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setProvider(item.id as any)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                        provider === item.id 
-                          ? item.id === 'gemini'
-                            ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-md'
-                            : item.id === 'claude'
-                            ? 'bg-indigo-600 text-white shadow-md'
-                            : 'bg-slate-700 text-white shadow-md'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      {item.icon}
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              </Label>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Video className="w-5 h-5 text-rose-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
+                <Input
+                  id="youtube-video-url"
                   type="url"
                   placeholder="https://www.youtube.com/watch?v=..."
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={analyzing}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50"
+                  className="w-full rounded-xl border-input bg-background py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground"
                   required
                 />
               </div>
-              <button
+              <Button
                 type="submit"
                 disabled={analyzing || !url.trim()}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                className="shrink-0 rounded-xl px-6 py-3 text-sm font-semibold"
               >
                 {analyzing ? (
                   <>
@@ -181,32 +143,28 @@ export default function VideoAnalysisPage() {
                     <Sparkles className="w-4 h-4" /> Start AI Analysis
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
 
           {/* Pipeline Loading State Indicator */}
           {analyzing && (
-            <div className="mt-6 p-4 bg-slate-950/80 border border-indigo-900/50 rounded-xl space-y-4">
-              <div className="flex items-center justify-between text-xs text-indigo-300 font-semibold">
+            <div className="mt-6 space-y-4 rounded-xl border border-border bg-muted/40 p-4">
+              <div className="flex items-center justify-between text-xs font-semibold text-primary">
                 <span>AI Processing Pipeline</span>
-                <span className={`animate-pulse font-medium ${
-                  provider === 'gemini' ? 'text-teal-400' : provider === 'claude' ? 'text-indigo-300' : 'text-indigo-300'
-                }`}>
-                  {provider === 'gemini' ? '⚡ Powered by Gemini' : provider === 'claude' ? '◆ Powered by Claude' : '✦ AI Auto-selected'}
-                </span>
+                <span className="animate-pulse font-medium text-primary">Automated analysis</span>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Step 1: Transcript / Download */}
                 <div className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${
                   step === 'downloading'
-                    ? 'bg-indigo-950/60 border-indigo-500 text-white'
-                    : step !== 'idle' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-400'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                    ? 'border-primary bg-primary/10 text-foreground'
+                    : step !== 'idle' ? 'border-emerald-500/40 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
+                    : 'border-border bg-background text-muted-foreground'
                 }`}>
                   {step === 'downloading' ? (
-                    <Captions className="w-4 h-4 text-indigo-400 animate-bounce shrink-0" />
+                    <Captions className="h-4 w-4 shrink-0 animate-bounce text-primary" />
                   ) : step !== 'idle' ? (
                     <Captions className="w-4 h-4 shrink-0" />
                   ) : (
@@ -221,12 +179,12 @@ export default function VideoAnalysisPage() {
                 {/* Step 2: Transcribing */}
                 <div className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${
                   step === 'transcribing'
-                    ? 'bg-indigo-950/60 border-indigo-500 text-white'
-                    : step === 'analyzing' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-400'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                    ? 'border-primary bg-primary/10 text-foreground'
+                    : step === 'analyzing' ? 'border-emerald-500/40 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
+                    : 'border-border bg-background text-muted-foreground'
                 }`}>
                   <FileAudio className={`w-4 h-4 shrink-0 ${
-                    step === 'transcribing' ? 'text-indigo-400 animate-pulse' : ''
+                    step === 'transcribing' ? 'animate-pulse text-primary' : ''
                   }`} />
                   <div className="text-xs font-medium">
                     2. Processing Text
@@ -237,28 +195,16 @@ export default function VideoAnalysisPage() {
                 {/* Step 3: AI Analysis — dynamic label */}
                 <div className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${
                   step === 'analyzing'
-                    ? provider === 'gemini'
-                      ? 'bg-teal-950/40 border-teal-600/60 text-white'
-                      : 'bg-indigo-950/60 border-indigo-500 text-white'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                    ? 'border-primary bg-primary/10 text-foreground'
+                    : 'border-border bg-background text-muted-foreground'
                 }`}>
-                  {provider === 'gemini' ? (
-                    <Cpu className={`w-4 h-4 shrink-0 ${
-                      step === 'analyzing' ? 'text-teal-400 animate-spin' : ''
-                    }`} />
-                  ) : provider === 'claude' ? (
-                    <Bot className={`w-4 h-4 shrink-0 ${
-                      step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''
-                    }`} />
-                  ) : (
-                    <Brain className={`w-4 h-4 shrink-0 ${
-                      step === 'analyzing' ? 'text-indigo-400 animate-spin' : ''
-                    }`} />
-                  )}
+                  <Brain className={`w-4 h-4 shrink-0 ${
+                    step === 'analyzing' ? 'animate-spin text-primary' : ''
+                  }`} />
                   <div className="text-xs font-medium">
-                    3. {provider === 'gemini' ? 'Gemini Analysis' : provider === 'claude' ? 'Claude Analysis' : 'AI Analysis'}
+                    3. AI Analysis
                     <p className="text-[10px] opacity-60 font-normal mt-0.5">
-                      {provider === 'gemini' ? 'Google Gemini' : provider === 'claude' ? 'Anthropic Claude' : 'Auto-selected model'}
+                      Content and visual insights
                     </p>
                   </div>
                 </div>
@@ -268,40 +214,43 @@ export default function VideoAnalysisPage() {
 
           {/* Error Banner */}
           {errorMsg && (
-            <div className="mt-4 p-4 bg-rose-950/50 border border-rose-800/60 rounded-xl flex items-center gap-3 text-rose-300 text-xs font-medium">
-              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-xs font-medium text-destructive">
+              <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
               <span>{errorMsg}</span>
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Current Active Analysis Results */}
         {currentAnalysis && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-indigo-400" /> Active Analysis Result
+            <h2 className="flex items-center gap-2 text-xl font-bold text-foreground">
+              <Sparkles className="h-5 w-5 text-primary" /> Active Analysis Result
             </h2>
             <VideoAnalysisDashboard analysis={currentAnalysis} />
           </div>
         )}
 
         {/* History List Section */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <History className="w-5 h-5 text-indigo-400" /> Past Video Analyses
-            </h2>
-            <span className="text-xs font-semibold px-2.5 py-1 bg-slate-800 text-slate-300 rounded-full">
+        <Card className="rounded-2xl border-border bg-card shadow-sm">
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
+              <History className="h-5 w-5 text-primary" /> Past Video Analyses
+            </CardTitle>
+            <Badge variant="secondary" className="rounded-full px-2.5 py-1 text-xs font-semibold">
               {history.length} Saved
-            </span>
-          </div>
+            </Badge>
+          </CardHeader>
 
+          <CardContent>
           {loadingHistory ? (
-            <div className="py-12 flex justify-center text-slate-500 text-xs font-semibold">
-              <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading history...
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Loading analysis history">
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
             </div>
           ) : history.length === 0 ? (
-            <div className="py-12 text-center text-slate-500 text-xs">
+            <div className="py-12 text-center text-xs text-muted-foreground">
               No video analyses saved yet. Submit a YouTube link above to start!
             </div>
           ) : (
@@ -315,26 +264,26 @@ export default function VideoAnalysisPage() {
                   }}
                   className={`p-4 rounded-xl border transition-all cursor-pointer space-y-3 ${
                     currentAnalysis?.id === item.id
-                      ? 'bg-indigo-950/40 border-indigo-500/80 shadow-lg shadow-indigo-600/10'
-                      : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/60'
+                      ? 'border-primary bg-primary/10 shadow-sm'
+                      : 'border-border bg-background hover:border-primary/40 hover:bg-muted/50'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-bold text-white line-clamp-2">
+                    <h3 className="line-clamp-2 text-sm font-bold text-foreground">
                       {item.video_title || "YouTube Video"}
                     </h3>
-                    <span className="text-xs font-extrabold px-2 py-0.5 bg-indigo-950 text-indigo-400 border border-indigo-800/50 rounded shrink-0">
+                    <span className="shrink-0 rounded border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-extrabold text-primary">
                       {item.overall_score?.toFixed(1) || "8.0"}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-400 line-clamp-2">
+                  <p className="line-clamp-2 text-xs text-muted-foreground">
                     {item.analysis_json?.summary || "Completed video audit."}
                   </p>
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-800/60">
+                  <div className="flex items-center justify-between border-t border-border pt-2 text-[11px] text-muted-foreground">
                     <span>{new Date(item.created_at).toLocaleDateString()}</span>
-                    <span className="text-indigo-400 font-semibold flex items-center gap-1">
+                    <span className="flex items-center gap-1 font-semibold text-primary">
                       View Details <ArrowRight className="w-3 h-3" />
                     </span>
                   </div>
@@ -342,7 +291,8 @@ export default function VideoAnalysisPage() {
               ))}
             </div>
           )}
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </AuthenticatedRoute>
   );

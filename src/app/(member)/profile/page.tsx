@@ -1,11 +1,17 @@
 'use client';
 
 import { useState } from "react";
+import { Lock, Mail, Shield, User } from "lucide-react";
+import { toast } from "sonner";
 import { AuthenticatedRoute } from "@/components/auth-guard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
 import { useAuth } from "@/providers/auth-provider";
 import { updateProfileApi } from "@/services/auth";
-import { User, Mail, Lock, Shield } from "lucide-react";
-import { toast } from "sonner";
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
@@ -31,61 +37,82 @@ export default function ProfilePage() {
 
   return (
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
-        <div className="p-8 bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <div>
-              <h1 className="text-2xl font-black text-white">Member Profile</h1>
-              <p className="text-xs text-slate-400 mt-1">Manage personal information and access credentials</p>
-            </div>
-            <span className="px-3 py-1 text-xs font-bold uppercase rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800 flex items-center gap-1">
-              <Shield className="w-3.5 h-3.5" /> Role: {user?.role}
-            </span>
-          </div>
+      <div className="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
+        <PageHeader
+          eyebrow="Account Settings"
+          title="Member Profile"
+          description="Manage personal information and access credentials."
+          icon={<User className="h-5 w-5" />}
+          actions={(
+            <Badge className="gap-1 uppercase">
+              <Shield className="h-3.5 w-3.5" /> Role: {user?.role}
+            </Badge>
+          )}
+        />
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Full Name</label>
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white"
-              />
-            </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Personal information</CardTitle>
+            <CardDescription>Keep your account details current and secure.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="full-name">Full Name</Label>
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="full-name"
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Email Address</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">New Password (optional)</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Leave blank to keep current"
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white"
-              />
-            </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">New Password</Label>
+                  <span className="text-[11px] text-muted-foreground">Optional</span>
+                </div>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Leave blank to keep current"
+                    className="pl-10"
+                  />
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition"
-            >
-              {loading ? "Saving Changes..." : "Save Profile"}
-            </button>
-          </form>
-        </div>
+              <div className="border-t border-border pt-5">
+                <Button type="submit" disabled={loading} size="lg" className="w-full">
+                  {loading ? "Saving Changes..." : "Save Profile"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </AuthenticatedRoute>
   );

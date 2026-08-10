@@ -1,13 +1,18 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { AuthenticatedRoute } from "@/components/auth-guard";
-import { getSuggestionsApi, deleteSuggestionApi } from "@/services/suggestions";
-import { Suggestion } from "@/types/suggestion";
 import Link from "next/link";
-import { Sparkles, Trash2, Plus, FileText } from "lucide-react";
+import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { AuthenticatedRoute } from "@/components/auth-guard";
 import { ExportButton } from "@/components/export-button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { deleteSuggestionApi, getSuggestionsApi } from "@/services/suggestions";
+import { Suggestion } from "@/types/suggestion";
 
 export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -40,51 +45,84 @@ export default function SuggestionsPage() {
 
   return (
     <AuthenticatedRoute allowedRoles={['member', 'admin']}>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-        <div className="flex justify-between items-center border-b border-slate-800 pb-5">
-          <div>
-            <h1 className="text-3xl font-black text-white">AI Content Suggestions</h1>
-            <p className="text-xs text-slate-400">Generated titles, hooks, captions & calendar strategies</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <ExportButton csvUrl="/api/suggestions/export" baseFilename="ai-suggestions" />
-            <Link
-              href="/suggestions/new"
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" /> Generate New
-            </Link>
-          </div>
-        </div>
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
+        <PageHeader
+          eyebrow="Content Intelligence"
+          title="AI Content Suggestions"
+          description="Generated titles, hooks, captions, and calendar strategies."
+          icon={<Sparkles className="h-5 w-5" />}
+          actions={(
+            <>
+              <ExportButton csvUrl="/api/suggestions/export" baseFilename="ai-suggestions" />
+              <Link
+                href="/suggestions/new"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4" /> Generate New
+              </Link>
+            </>
+          )}
+        />
 
         {loading ? (
-          <div className="text-center py-12 text-indigo-400">Loading suggestions...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {suggestions.map((s) => (
-              <div key={s.id} className="p-6 bg-[#0e172a] border border-slate-800 rounded-2xl shadow-xl flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="px-2 py-0.5 text-[10px] font-black uppercase rounded bg-indigo-950 text-indigo-400 border border-indigo-800">
-                      {s.type}
-                    </span>
-                    <button onClick={() => handleDelete(s.id)} className="text-slate-500 hover:text-rose-400">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <p className="text-xs text-slate-300 font-medium line-clamp-3 mb-4">{s.input_context}</p>
-                </div>
-
-                <div className="pt-4 border-t border-slate-800 flex justify-between items-center text-xs">
-                  <span className="text-slate-500">{s.created_at?.substring(0, 10)}</span>
-                  <Link
-                    href={`/suggestions/${s.id}`}
-                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" /> View Strategy
-                  </Link>
-                </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Loading suggestions">
+            {[0, 1, 2].map((item) => (
+              <Card key={item} className="p-6">
+                <Skeleton className="mb-5 h-6 w-20" />
+                <Skeleton className="mb-2 h-4 w-full" />
+                <Skeleton className="mb-8 h-4 w-4/5" />
+                <Skeleton className="h-8 w-full" />
+              </Card>
+            ))}
+          </div>
+        ) : suggestions.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center py-12 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+                <Sparkles className="h-5 w-5 text-primary" />
               </div>
+              <p className="text-sm font-semibold text-foreground">No suggestions generated yet</p>
+              <p className="mt-1 max-w-md text-xs leading-5 text-muted-foreground">
+                Generate your first AI strategy from a connected account or tracked channel.
+              </p>
+              <Link
+                href="/suggestions/new"
+                className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4" /> Generate Suggestion
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {suggestions.map((suggestion) => (
+              <Card key={suggestion.id} className="flex flex-col justify-between overflow-hidden">
+                <CardHeader>
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <Badge className="uppercase tracking-wider">{suggestion.type}</Badge>
+                    <Button
+                      onClick={() => handleDelete(suggestion.id)}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      aria-label="Delete suggestion"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="line-clamp-3 text-sm font-medium leading-6 text-foreground">{suggestion.input_context}</p>
+                </CardHeader>
+
+                <CardFooter className="justify-between gap-3 border-t border-border bg-muted/30 pt-4">
+                  <span className="text-xs text-muted-foreground">{suggestion.created_at?.substring(0, 10)}</span>
+                  <Link
+                    href={`/suggestions/${suggestion.id}`}
+                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" /> View Strategy
+                  </Link>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         )}

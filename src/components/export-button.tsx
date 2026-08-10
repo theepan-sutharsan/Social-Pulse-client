@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from "react";
-import { Download, FileSpreadsheet, FileText } from "lucide-react";
-import { downloadBlob } from "@/lib/download";
+import { useState } from "react";
+import { FileSpreadsheet, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { downloadBlob } from "@/lib/download";
 
 interface ExportButtonProps {
   csvUrl: string;
@@ -19,7 +20,7 @@ export function ExportButton({ csvUrl, pdfUrl, baseFilename }: ExportButtonProps
       setDownloading(true);
       await downloadBlob(url, `${baseFilename}.${ext}`);
       toast.success(`Exported ${ext.toUpperCase()} successfully!`);
-    } catch (err) {
+    } catch {
       toast.error("Failed to download export.");
     } finally {
       setDownloading(false);
@@ -27,24 +28,22 @@ export function ExportButton({ csvUrl, pdfUrl, baseFilename }: ExportButtonProps
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <button
+    <div className="flex items-center gap-2" aria-label="Export options">
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={() => handleExport(csvUrl, "csv")}
         disabled={downloading}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 transition"
+        className="border border-border text-primary"
       >
-        <FileSpreadsheet className="w-3.5 h-3.5" />
+        <FileSpreadsheet className="h-3.5 w-3.5" />
         CSV
-      </button>
+      </Button>
       {pdfUrl && (
-        <button
-          onClick={() => handleExport(pdfUrl, "pdf")}
-          disabled={downloading}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-sm"
-        >
-          <FileText className="w-3.5 h-3.5" />
+        <Button size="sm" onClick={() => handleExport(pdfUrl, "pdf")} disabled={downloading}>
+          <FileText className="h-3.5 w-3.5" />
           PDF Report
-        </button>
+        </Button>
       )}
     </div>
   );

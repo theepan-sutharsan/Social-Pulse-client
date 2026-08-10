@@ -9,6 +9,11 @@ import {
 } from '@/services/yt-channel-analysis';
 import { YTAnalysisRun, YTVideoAnalysisEntry, YTOverallChannelInsights, YTContentSuggestion } from '@/types/yt-channel-analysis';
 import { toast } from 'sonner';
+import { YouTubeIcon } from '@/components/icons/youtube-icon';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/page-header';
 import {
   BarChart3,
   Sparkles,
@@ -21,8 +26,6 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
-  Cpu,
-  Bot,
   ThumbsUp,
   MessageSquare,
   Eye,
@@ -66,11 +69,11 @@ function ScoreBar({ score, max = 10 }: { score: number; max?: number }) {
     pct >= 80 ? 'bg-emerald-500' : pct >= 60 ? 'bg-amber-500' : 'bg-rose-500';
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
       <span className={`text-xs font-bold tabular-nums ${
-        pct >= 80 ? 'text-emerald-400' : pct >= 60 ? 'text-amber-400' : 'text-rose-400'
+        pct >= 80 ? 'text-emerald-600 dark:text-emerald-400' : pct >= 60 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'
       }`}>{score}/10</span>
     </div>
   );
@@ -83,12 +86,12 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
   const a = video.analysis;
   const avg = a.overall_score ||
     parseFloat(((a.title_score + a.thumbnail_score + a.seo_score + a.content_score) / 4).toFixed(1));
-  const avgColor = avg >= 8 ? 'text-emerald-400' : avg >= 6 ? 'text-amber-400' : 'text-rose-400';
-  const avgBg = avg >= 8 ? 'bg-emerald-950/40 border-emerald-800/40' : avg >= 6 ? 'bg-amber-950/40 border-amber-800/40' : 'bg-rose-950/40 border-rose-800/40';
+  const avgColor = avg >= 8 ? 'text-emerald-700 dark:text-emerald-400' : avg >= 6 ? 'text-amber-700 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400';
+  const avgBg = avg >= 8 ? 'bg-emerald-50 border-emerald-500/30 dark:bg-emerald-950/40' : avg >= 6 ? 'bg-amber-50 border-amber-500/30 dark:bg-amber-950/40' : 'bg-rose-50 border-rose-500/30 dark:bg-rose-950/40';
 
   return (
     <div className={`rounded-2xl border transition-all ${
-      expanded ? 'border-indigo-600/50 bg-slate-900/80' : 'border-slate-800/60 bg-slate-900/50 hover:border-slate-700'
+      expanded ? 'border-primary/50 bg-card' : 'border-border bg-card hover:border-primary/30'
     }`}>
       {/* Header row — always visible */}
       <button
@@ -96,24 +99,24 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
         onClick={() => setExpanded(!expanded)}
       >
         {/* Rank */}
-        <span className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center shrink-0">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
           {rank}
         </span>
 
         {/* Title + date */}
         <div className="flex-1 min-w-0">
-          <p className="text-white text-sm font-semibold truncate">{video.title}</p>
-          <p className="text-slate-500 text-[11px] mt-0.5">
+          <p className="truncate text-sm font-semibold text-foreground">{video.title}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
             {video.published_at ? new Date(video.published_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
           </p>
         </div>
 
         {/* Stats */}
-        <div className="hidden sm:flex items-center gap-4 text-xs text-slate-400 shrink-0">
+        <div className="hidden shrink-0 items-center gap-4 text-xs text-muted-foreground sm:flex">
           <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{video.views.toLocaleString()}</span>
           <span className="flex items-center gap-1"><ThumbsUp className="w-3 h-3" />{video.likes.toLocaleString()}</span>
           <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" />{video.comments.toLocaleString()}</span>
-          <span className="text-indigo-300 font-medium">{video.engagement_rate_pct}%</span>
+          <span className="font-medium text-primary">{video.engagement_rate_pct}%</span>
         </div>
 
         {/* Overall score badge */}
@@ -121,12 +124,12 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
           {avg.toFixed(1)}
         </span>
 
-        <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Expanded analysis */}
       {expanded && (
-        <div className="px-5 pb-5 space-y-5 border-t border-slate-800/60 pt-4">
+        <div className="space-y-5 border-t border-border px-5 pb-5 pt-4">
           {/* Score bars */}
           <div className="grid grid-cols-2 gap-4">
             {([
@@ -136,7 +139,7 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
               { label: 'Content Quality', score: a.content_score },
             ] as { label: string; score: number }[]).map((item) => (
               <div key={item.label} className="space-y-1">
-                <p className="text-[11px] text-slate-400 font-medium">{item.label}</p>
+                <p className="text-[11px] font-medium text-muted-foreground">{item.label}</p>
                 <ScoreBar score={item.score} />
               </div>
             ))}
@@ -144,9 +147,9 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
 
           {/* Engagement analysis */}
           {a.engagement_analysis && (
-            <div className="bg-slate-800/40 rounded-xl p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-400 mb-1">Engagement Analysis</p>
-              <p className="text-slate-300 text-xs leading-relaxed">{a.engagement_analysis}</p>
+            <div className="rounded-xl bg-muted/50 p-3">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-primary">Engagement Analysis</p>
+              <p className="text-xs leading-relaxed text-muted-foreground">{a.engagement_analysis}</p>
             </div>
           )}
 
@@ -154,25 +157,25 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {a.strengths?.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Strengths</p>
+                <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400"><CheckCircle className="w-3 h-3" /> Strengths</p>
                 <ul className="space-y-1">
-                  {a.strengths.map((s, i) => <li key={i} className="text-slate-300 text-xs leading-relaxed flex gap-1.5"><span className="text-emerald-500 mt-0.5">•</span>{s}</li>)}
+                  {a.strengths.map((s, i) => <li key={i} className="flex gap-1.5 text-xs leading-relaxed text-muted-foreground"><span className="mt-0.5 text-emerald-500">•</span>{s}</li>)}
                 </ul>
               </div>
             )}
             {a.weaknesses?.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-rose-400 flex items-center gap-1"><XCircle className="w-3 h-3" /> Weaknesses</p>
+                <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400"><XCircle className="w-3 h-3" /> Weaknesses</p>
                 <ul className="space-y-1">
-                  {a.weaknesses.map((s, i) => <li key={i} className="text-slate-300 text-xs leading-relaxed flex gap-1.5"><span className="text-rose-500 mt-0.5">•</span>{s}</li>)}
+                  {a.weaknesses.map((s, i) => <li key={i} className="flex gap-1.5 text-xs leading-relaxed text-muted-foreground"><span className="mt-0.5 text-rose-500">•</span>{s}</li>)}
                 </ul>
               </div>
             )}
             {a.suggestions?.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1"><Zap className="w-3 h-3" /> Suggestions</p>
+                <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400"><Zap className="w-3 h-3" /> Suggestions</p>
                 <ul className="space-y-1">
-                  {a.suggestions.map((s, i) => <li key={i} className="text-slate-300 text-xs leading-relaxed flex gap-1.5"><span className="text-amber-500 mt-0.5">•</span>{s}</li>)}
+                  {a.suggestions.map((s, i) => <li key={i} className="flex gap-1.5 text-xs leading-relaxed text-muted-foreground"><span className="mt-0.5 text-amber-500">•</span>{s}</li>)}
                 </ul>
               </div>
             )}
@@ -184,7 +187,7 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
               href={video.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-primary transition-colors hover:text-primary/80"
             >
               <ExternalLink className="w-3 h-3" /> Watch on YouTube
             </a>
@@ -200,51 +203,51 @@ function VideoCard({ video, rank }: { video: YTVideoAnalysisEntry; rank: number 
 function ChannelInsights({ insights }: { insights: YTOverallChannelInsights }) {
   const sections = [
     {
-      icon: <TrendingUp className="w-4 h-4 text-emerald-400" />,
+      icon: <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
       label: 'Best Performing Videos',
-      color: 'text-emerald-400',
+      color: 'text-emerald-600 dark:text-emerald-400',
       items: insights.best_performing_videos,
     },
     {
-      icon: <BarChart2 className="w-4 h-4 text-rose-400" />,
+      icon: <BarChart2 className="w-4 h-4 text-rose-600 dark:text-rose-400" />,
       label: 'Lowest Performing Videos',
-      color: 'text-rose-400',
+      color: 'text-rose-600 dark:text-rose-400',
       items: insights.lowest_performing_videos,
     },
     {
-      icon: <Star className="w-4 h-4 text-yellow-400" />,
+      icon: <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />,
       label: 'Successful Patterns',
-      color: 'text-yellow-400',
+      color: 'text-yellow-600 dark:text-yellow-400',
       items: insights.top_patterns,
     },
     {
-      icon: <AlertCircle className="w-4 h-4 text-amber-400" />,
+      icon: <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
       label: 'Common Problems',
-      color: 'text-amber-400',
+      color: 'text-amber-600 dark:text-amber-400',
       items: insights.common_problems,
     },
     {
-      icon: <Globe className="w-4 h-4 text-blue-400" />,
+      icon: <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400" />,
       label: 'SEO Improvements',
-      color: 'text-blue-400',
+      color: 'text-blue-600 dark:text-blue-400',
       items: insights.seo_improvement_suggestions,
     },
     {
-      icon: <Target className="w-4 h-4 text-purple-400" />,
+      icon: <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />,
       label: 'Thumbnail Improvements',
-      color: 'text-purple-400',
+      color: 'text-purple-600 dark:text-purple-400',
       items: insights.thumbnail_improvement_suggestions,
     },
     {
-      icon: <Lightbulb className="w-4 h-4 text-indigo-400" />,
+      icon: <Lightbulb className="w-4 h-4 text-primary" />,
       label: 'Future Video Ideas',
-      color: 'text-indigo-400',
+      color: 'text-primary',
       items: insights.future_video_ideas,
     },
     {
-      icon: <Zap className="w-4 h-4 text-teal-400" />,
+      icon: <Zap className="w-4 h-4 text-teal-600 dark:text-teal-400" />,
       label: 'Recommendations',
-      color: 'text-teal-400',
+      color: 'text-teal-600 dark:text-teal-400',
       items: insights.recommendations,
     },
   ];
@@ -253,26 +256,26 @@ function ChannelInsights({ insights }: { insights: YTOverallChannelInsights }) {
     <div className="space-y-6">
       {/* Text sections */}
       {([
-        { label: 'Content Category Performance', text: insights.content_category_performance, color: 'text-indigo-400' },
-        { label: 'Audience Behavior Insights', text: insights.audience_behavior_insights, color: 'text-purple-400' },
-        { label: 'Recommended Content Strategy', text: insights.recommended_content_strategy, color: 'text-emerald-400' },
+        { label: 'Content Category Performance', text: insights.content_category_performance, color: 'text-primary' },
+        { label: 'Audience Behavior Insights', text: insights.audience_behavior_insights, color: 'text-purple-600 dark:text-purple-400' },
+        { label: 'Recommended Content Strategy', text: insights.recommended_content_strategy, color: 'text-emerald-600 dark:text-emerald-400' },
       ] as { label: string; text: string; color: string }[]).filter(s => s.text).map((s) => (
-        <div key={s.label} className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-5 space-y-2">
+        <div key={s.label} className="space-y-2 rounded-2xl border border-border bg-card p-5">
           <p className={`text-[11px] font-semibold uppercase tracking-wider ${s.color}`}>{s.label}</p>
-          <p className="text-slate-300 text-sm leading-relaxed">{s.text}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{s.text}</p>
         </div>
       ))}
 
       {/* List sections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sections.filter(s => s.items?.length > 0).map((s) => (
-          <div key={s.label} className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-5 space-y-3">
+          <div key={s.label} className="space-y-3 rounded-2xl border border-border bg-card p-5">
             <p className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 ${s.color}`}>
               {s.icon}{s.label}
             </p>
             <ul className="space-y-1.5">
               {s.items.map((item, i) => (
-                <li key={i} className="text-slate-300 text-xs leading-relaxed flex gap-2">
+                <li key={i} className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
                   <span className={`mt-0.5 shrink-0 ${s.color}`}>•</span>{item}
                 </li>
               ))}
@@ -296,24 +299,26 @@ function ScriptOutlineBlock({ text }: { text: string }) {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800/60 bg-slate-800/40">
-        <div className="flex items-center gap-2 text-slate-300 text-sm font-semibold">
-          <FileText className="w-4 h-4 text-indigo-400" />
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border bg-muted/50 px-5 py-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <FileText className="h-4 w-4 text-primary" />
           Full Script Outline — Top Pick
         </div>
-        <button
+        <Button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-700/50"
+          variant="ghost"
+          size="sm"
+          className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground"
         >
           {copied ? (
-            <><Check className="w-3.5 h-3.5 text-emerald-400" /> Copied</>
+            <><Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> Copied</>
           ) : (
             <><Copy className="w-3.5 h-3.5" /> Copy</>
           )}
-        </button>
+        </Button>
       </div>
-      <pre className="p-5 text-slate-300 text-xs leading-relaxed whitespace-pre-wrap font-mono overflow-x-auto max-h-96 overflow-y-auto">
+      <pre className="max-h-96 overflow-x-auto overflow-y-auto whitespace-pre-wrap p-5 font-mono text-xs leading-relaxed text-muted-foreground">
         {text}
       </pre>
     </div>
@@ -333,11 +338,11 @@ function SuggestionsPanel({
     <div className="space-y-6">
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-yellow-400" />
-          <p className="text-white font-semibold text-sm">Top 5 Content Suggestions</p>
+          <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+          <p className="text-sm font-semibold text-foreground">Top 5 Content Suggestions</p>
         </div>
         {suggestions.length === 0 ? (
-          <div className="text-slate-500 text-sm text-center py-8">
+          <div className="py-8 text-center text-sm text-muted-foreground">
             No content suggestions available for this run.
           </div>
         ) : (
@@ -349,43 +354,43 @@ function SuggestionsPanel({
                   key={idx}
                   className={`rounded-2xl border p-5 space-y-3 transition-all ${
                     isTop
-                      ? 'border-indigo-500/50 bg-indigo-950/30 shadow-lg shadow-indigo-900/20'
-                      : 'border-slate-800/60 bg-slate-900/60'
+                      ? 'border-primary/50 bg-primary/10 shadow-sm'
+                      : 'border-border bg-card'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <span
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                          isTop ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'
+                          isTop ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                         }`}
                       >
                         {idx + 1}
                       </span>
                       {isTop && (
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-950/60 border border-indigo-800/50 px-2 py-0.5 rounded-full">
+                        <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
                           Top Pick
                         </span>
                       )}
                     </div>
                   </div>
-                  <h3 className="text-white font-semibold text-sm leading-snug">{item.title}</h3>
+                  <h3 className="text-sm font-semibold leading-snug text-foreground">{item.title}</h3>
 
                   <div className="space-y-3 pt-1">
                     {item.hook && (
-                      <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/40">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-400 mb-1">
+                      <div className="rounded-xl border border-border bg-muted/50 p-3">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
                           Hook (First 10 Seconds)
                         </p>
-                        <p className="text-slate-300 text-xs leading-relaxed italic">"{item.hook}"</p>
+                        <p className="text-xs italic leading-relaxed text-muted-foreground">"{item.hook}"</p>
                       </div>
                     )}
                     {item.rationale && (
-                      <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/40">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400 mb-1">
+                      <div className="rounded-xl border border-border bg-muted/50 p-3">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                           Why This Will Work
                         </p>
-                        <p className="text-slate-300 text-xs leading-relaxed">{item.rationale}</p>
+                        <p className="text-xs leading-relaxed text-muted-foreground">{item.rationale}</p>
                       </div>
                     )}
                   </div>
@@ -437,46 +442,46 @@ function AnalysisResult({ run }: { run: YTAnalysisRun }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Videos Analyzed', value: run.videos_analyzed_count, icon: <BarChart3 className="w-4 h-4 text-red-400" />, },
-          { label: 'Avg Score', value: avgOverall, icon: <Star className="w-4 h-4 text-yellow-400" />, },
-          { label: 'Total Views', value: videos.reduce((s, v) => s + v.views, 0).toLocaleString(), icon: <Eye className="w-4 h-4 text-indigo-400" />, },
-          { label: 'Avg Engagement', value: videos.length ? (videos.reduce((s, v) => s + v.engagement_rate_pct, 0) / videos.length).toFixed(2) + '%' : '—', icon: <TrendingUp className="w-4 h-4 text-emerald-400" />, },
+          { label: 'Avg Score', value: avgOverall, icon: <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />, },
+          { label: 'Total Views', value: videos.reduce((s, v) => s + v.views, 0).toLocaleString(), icon: <Eye className="w-4 h-4 text-primary" />, },
+          { label: 'Avg Engagement', value: videos.length ? (videos.reduce((s, v) => s + v.engagement_rate_pct, 0) / videos.length).toFixed(2) + '%' : '—', icon: <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />, },
         ].map((s) => (
-          <div key={s.label} className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-4 flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-slate-400 text-xs">{s.icon}{s.label}</div>
-            <span className="text-white font-bold text-xl">{s.value}</span>
+          <div key={s.label} className="flex flex-col gap-1 rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">{s.icon}{s.label}</div>
+            <span className="text-xl font-bold text-foreground">{s.value}</span>
           </div>
         ))}
       </div>
 
       {/* Section tabs */}
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           onClick={() => setActiveSection('videos')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-            activeSection === 'videos' ? 'bg-indigo-600 text-white' : 'bg-slate-900/60 border border-slate-800/60 text-slate-400 hover:text-white'
-          }`}
+          variant={activeSection === 'videos' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-xl px-4 py-2 text-xs font-semibold"
         >
           <BarChart3 className="w-3.5 h-3.5" />
           Per-Video Analysis ({videos.length})
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setActiveSection('insights')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-            activeSection === 'insights' ? 'bg-indigo-600 text-white' : 'bg-slate-900/60 border border-slate-800/60 text-slate-400 hover:text-white'
-          }`}
+          variant={activeSection === 'insights' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-xl px-4 py-2 text-xs font-semibold"
         >
           <Lightbulb className="w-3.5 h-3.5" />
           Channel Insights
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setActiveSection('suggestions')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-            activeSection === 'suggestions' ? 'bg-indigo-600 text-white' : 'bg-slate-900/60 border border-slate-800/60 text-slate-400 hover:text-white'
-          }`}
+          variant={activeSection === 'suggestions' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-xl px-4 py-2 text-xs font-semibold"
         >
-          <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+          <Sparkles className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" />
           Content Suggestions ({suggestions.length})
-        </button>
+        </Button>
       </div>
 
       {/* Per-video section */}
@@ -484,13 +489,13 @@ function AnalysisResult({ run }: { run: YTAnalysisRun }) {
         <div className="space-y-3">
           {/* Search */}
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
               type="text"
               placeholder="Search videos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all"
+              className="w-full rounded-xl border-input bg-background py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground"
             />
           </div>
           <div className="space-y-2">
@@ -498,7 +503,7 @@ function AnalysisResult({ run }: { run: YTAnalysisRun }) {
               <VideoCard key={v.video_id || idx} video={v} rank={idx + 1} />
             ))}
             {filtered.length === 0 && (
-              <p className="text-slate-500 text-sm text-center py-8">No videos match your search.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">No videos match your search.</p>
             )}
           </div>
         </div>
@@ -526,7 +531,7 @@ function HistoryPanel({
 }) {
   if (history.length === 0) {
     return (
-      <div className="text-center py-10 text-slate-500 text-sm">
+      <div className="py-10 text-center text-sm text-muted-foreground">
         No past analyses yet. Submit a channel URL above to get started.
       </div>
     );
@@ -537,39 +542,40 @@ function HistoryPanel({
       {history.map((run) => {
         const ch = run.channel;
         return (
-          <button
+          <Button
             key={run.id}
             onClick={() => onSelect(run)}
-            className="w-full text-left flex items-center gap-4 px-4 py-3 rounded-xl bg-slate-900/60 border border-slate-800/60 hover:border-indigo-700/50 hover:bg-indigo-950/20 transition-all group"
+            variant="outline"
+            className="group h-auto w-full justify-start rounded-xl border-border bg-card px-4 py-3 text-left hover:border-primary/40 hover:bg-muted/50"
           >
             {ch?.thumbnail_url && (
               <img
                 src={ch.thumbnail_url}
                 alt={ch.channel_title}
-                className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-slate-700"
+                className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-border"
               />
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate">
+              <p className="truncate text-sm font-medium text-foreground">
                 {ch?.channel_title || `Run #${run.id}`}
               </p>
-              <p className="text-slate-500 text-xs">
+              <p className="text-xs text-muted-foreground">
                 {run.videos_analyzed_count} videos · {timeAgo(run.created_at)}
               </p>
             </div>
             <span
               className={`text-[10px] font-semibold px-2 py-1 rounded-full shrink-0 ${
                 run.status === 'completed'
-                  ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-500/30 dark:bg-emerald-950/60 dark:text-emerald-400'
                   : run.status === 'failed'
-                  ? 'bg-rose-950/60 text-rose-400 border border-rose-800/40'
-                  : 'bg-amber-950/60 text-amber-400 border border-amber-800/40'
+                  ? 'bg-destructive/10 text-destructive border border-destructive/30'
+                  : 'bg-amber-50 text-amber-700 border border-amber-500/30 dark:bg-amber-950/60 dark:text-amber-400'
               }`}
             >
               {run.status}
             </span>
-            <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 transition-colors shrink-0" />
-          </button>
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+          </Button>
         );
       })}
     </div>
@@ -580,7 +586,6 @@ function HistoryPanel({
 
 export default function YTChannelAnalysisPage() {
   const [channelUrl, setChannelUrl] = useState('');
-  const [provider, setProvider] = useState<'claude' | 'gemini'>('claude');
   const [videoCount, setVideoCount] = useState<10 | 20 | 30 | 50>(50);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'idle' | 'fetching' | 'transcribing' | 'analyzing'>('idle');
@@ -624,7 +629,7 @@ export default function YTChannelAnalysisPage() {
     const t2 = setTimeout(() => setStep('analyzing'), 20000);
 
     try {
-      const res = await startChannelAnalysisApi(channelUrl.trim(), provider, videoCount);
+      const res = await startChannelAnalysisApi(channelUrl.trim(), videoCount);
       clearTimeout(t1);
       clearTimeout(t2);
 
@@ -649,92 +654,48 @@ export default function YTChannelAnalysisPage() {
     idle: '',
     fetching: `Fetching last ${videoCount} videos via YouTube API...`,
     transcribing: 'Extracting video transcripts...',
-    analyzing: provider === 'gemini'
-      ? 'Gemini AI is analyzing patterns & generating ideas...'
-      : 'Claude AI is analyzing patterns & generating ideas...',
+    analyzing: 'Analyzing patterns and generating ideas...',
   };
 
   return (
     <AuthenticatedRoute>
-      <div className="min-h-screen bg-[#030718]">
-        {/* Header */}
-        <div className="border-b border-slate-800/60 bg-[#040a1e]/80 backdrop-blur-sm">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/40">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black text-white tracking-tight">
-                  YT Channel Analyzer
-                </h1>
-                <p className="text-slate-400 text-sm">
-                  AI-powered video idea generator & script creator
-                </p>
-              </div>
-            </div>
+      <div className="min-h-screen bg-background">
+        <div className="border-b border-border bg-background/95 backdrop-blur-sm">
+          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+            <PageHeader
+              eyebrow="Content intelligence"
+              title="YouTube Channel Analyzer"
+              description="Analyze recent uploads, uncover channel patterns, and turn performance data into actionable content ideas."
+              icon={<YouTubeIcon className="h-6 w-6 text-red-400" />}
+            />
           </div>
         </div>
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-          {/* Provider Selector */}
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500 font-medium">AI Provider</span>
-              <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
-                <button
-                  id="provider-claude"
-                  type="button"
-                  onClick={() => setProvider('claude')}
-                  disabled={loading}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    provider === 'claude'
-                      ? 'bg-indigo-600 text-white shadow shadow-indigo-600/40'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <Bot className="w-3.5 h-3.5" />
-                  Claude
-                </button>
-                <button
-                  id="provider-gemini"
-                  type="button"
-                  onClick={() => setProvider('gemini')}
-                  disabled={loading}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    provider === 'gemini'
-                      ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow shadow-blue-600/40'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <Cpu className="w-3.5 h-3.5" />
-                  Gemini
-                </button>
-              </div>
-            </div>
-
             {/* Video Count Selector */}
             <div className="flex items-center gap-3">
               <div>
-                <span className="text-xs text-slate-500 font-medium block">Videos to Scan</span>
-                <span className="text-[10px] text-slate-600">from latest uploads</span>
+                <span className="block text-xs font-medium text-muted-foreground">Videos to Scan</span>
+                <span className="text-[10px] text-muted-foreground/80">from latest uploads</span>
               </div>
-              <div className="flex gap-1 p-1 bg-slate-900/80 border border-slate-800/60 rounded-xl">
+              <div className="flex gap-1 rounded-xl border border-border bg-muted/50 p-1">
                 {VIDEO_COUNT_OPTIONS.map((count) => (
-                  <button
+                  <Button
                     key={count}
                     id={`video-count-${count}`}
-                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setVideoCount(count)}
                     disabled={loading}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    className={`h-8 px-3 ${
                       videoCount === count
-                        ? 'bg-slate-600 text-white shadow'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     {count}
-                  </button>
+                  </Button>
                 ))}
               </div>
               {videoCount < 50 && (
@@ -749,58 +710,60 @@ export default function YTChannelAnalysisPage() {
           <form onSubmit={handleAnalyze} className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                <input
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
                   id="yt-channel-url"
                   type="text"
                   value={channelUrl}
                   onChange={(e) => setChannelUrl(e.target.value)}
                   placeholder="https://youtube.com/@channelhandle or channel ID"
                   disabled={loading}
-                  className="w-full pl-10 pr-4 py-3.5 bg-slate-900/80 border border-slate-700/60 rounded-2xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 disabled:opacity-50 transition-all"
+                  className="h-12 rounded-2xl border-input bg-background pl-10 pr-4 text-foreground"
                 />
               </div>
-              <button
+              <Button
                 id="analyze-channel-btn"
                 type="submit"
+                size="lg"
                 disabled={loading || !channelUrl.trim()}
-                className="flex items-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-2xl shadow-lg shadow-indigo-600/30 transition-all shrink-0"
+                className="h-12 rounded-2xl"
               >
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
                 ) : (
                   <><Sparkles className="w-4 h-4" /> Analyze Channel</>
                 )}
-              </button>
+              </Button>
             </div>
 
             {/* Progress status */}
             {loading && step !== 'idle' && (
-              <div className="flex items-center gap-3 px-4 py-3 bg-indigo-950/40 border border-indigo-800/40 rounded-xl">
-                <Loader2 className="w-4 h-4 text-indigo-400 animate-spin shrink-0" />
-                <p className="text-indigo-300 text-sm">{stepLabels[step]}</p>
+              <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
+                <p className="text-sm text-primary">{stepLabels[step]}</p>
               </div>
             )}
 
             {/* Error */}
             {errorMsg && !loading && (
-              <div className="flex items-start gap-3 px-4 py-3 bg-rose-950/40 border border-rose-800/40 rounded-xl">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <p className="text-rose-300 text-sm">{errorMsg}</p>
+              <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                <p className="text-sm text-destructive">{errorMsg}</p>
               </div>
             )}
           </form>
 
           {/* Tabs */}
-          <div className="flex gap-1 p-1 bg-slate-900/60 border border-slate-800/60 rounded-xl w-fit">
+          <div className="flex w-fit gap-1 rounded-xl border border-border bg-muted/50 p-1">
             {(['analyze', 'history'] as const).map((tab) => (
-              <button
+              <Button
                 key={tab}
+                variant="ghost"
                 onClick={() => setActiveTab(tab)}
-                className={`px-5 py-2 text-sm font-semibold rounded-lg capitalize transition-all ${
+                className={`h-9 rounded-lg px-5 capitalize ${
                   activeTab === tab
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {tab === 'analyze' ? (
@@ -812,7 +775,7 @@ export default function YTChannelAnalysisPage() {
                     <History className="w-3.5 h-3.5" /> History
                   </span>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -820,48 +783,29 @@ export default function YTChannelAnalysisPage() {
           {activeTab === 'analyze' && (
             <>
               {!currentRun && !loading && (
-                <div className="text-center py-16 space-y-4">
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-950/60 border border-indigo-800/40 flex items-center justify-center mx-auto">
-                    <BarChart3 className="w-8 h-8 text-indigo-400" />
+                <Card className="border-border bg-card">
+                  <CardContent className="space-y-4 py-16 text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10">
+                    <BarChart3 className="h-8 w-8 text-primary" />
                   </div>
-                  <p className="text-slate-400 text-sm max-w-sm mx-auto">
+                  <p className="mx-auto max-w-sm text-sm text-muted-foreground">
                     Enter a YouTube channel URL above. The system will fetch the last 50 videos,
-                    analyze transcripts, and use your selected AI to generate content ideas and a full script.
+                    analyze transcripts, and generate content ideas with a full script.
                   </p>
-                  <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                    <span>Powered by</span>
-                    <span className={`font-semibold ${
-                      provider === 'gemini' ? 'text-teal-400' : 'text-indigo-400'
-                    }`}>
-                      {provider === 'gemini' ? '✦ Google Gemini' : '◆ Anthropic Claude'}
-                    </span>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               )}
               {currentRun && currentRun.status === 'completed' && (
-                <div className="space-y-4">
-                  {/* Provider badge */}
-                  {currentRun.analysis_summary?.ai_provider && (
-                    <div className={`inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full border ${
-                      currentRun.analysis_summary.ai_provider === 'gemini'
-                        ? 'bg-teal-950/50 text-teal-400 border-teal-800/40'
-                        : 'bg-indigo-950/50 text-indigo-400 border-indigo-800/40'
-                    }`}>
-                      {currentRun.analysis_summary.ai_provider === 'gemini'
-                        ? <><Cpu className="w-3 h-3" /> Analyzed by Gemini</>
-                        : <><Bot className="w-3 h-3" /> Analyzed by Claude</>
-                      }
-                    </div>
-                  )}
+                <div>
                   <AnalysisResult run={currentRun} />
                 </div>
               )}
               {currentRun && currentRun.status === 'failed' && (
-                <div className="flex items-start gap-3 px-5 py-4 bg-rose-950/40 border border-rose-800/40 rounded-xl">
-                  <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-5 py-4">
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
                   <div>
-                    <p className="text-rose-300 font-medium text-sm">Analysis Failed</p>
-                    <p className="text-rose-400/80 text-xs mt-1">{currentRun.error_message}</p>
+                    <p className="text-sm font-medium text-destructive">Analysis Failed</p>
+                    <p className="mt-1 text-xs text-destructive/80">{currentRun.error_message}</p>
                   </div>
                 </div>
               )}
@@ -872,7 +816,7 @@ export default function YTChannelAnalysisPage() {
             <>
               {loadingHistory ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               ) : (
                 <HistoryPanel

@@ -1,8 +1,8 @@
 import { apiClient } from "@/lib/api-client";
 import { VideoAnalysis } from "@/types/video-analysis";
 
-export async function analyzeVideoApi(youtube_url: string, provider?: string): Promise<VideoAnalysis> {
-  const res = await apiClient.post("/api/video-analysis/analyze", { youtube_url, provider });
+export async function analyzeVideoApi(youtube_url: string): Promise<VideoAnalysis> {
+  const res = await apiClient.post("/api/video-analysis/analyze", { youtube_url });
   return res.data.analysis as VideoAnalysis;
 }
 

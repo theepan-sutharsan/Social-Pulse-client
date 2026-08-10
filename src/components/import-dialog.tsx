@@ -1,27 +1,40 @@
 'use client';
 
-import React, { useState } from "react";
-import { Upload, X, CheckCircle, AlertTriangle } from "lucide-react";
-import { importTrackedChannelsCsvApi } from "@/services/tracked-channels";
+import { useState } from "react";
+import { isAxiosError } from "axios";
+import { AlertTriangle, CheckCircle, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { importTrackedChannelsCsvApi } from "@/services/tracked-channels";
+
+interface ImportResult {
+  created: number;
+  skipped: number;
+  errors?: Array<{ row: number; message: string }>;
+}
 
 export function ImportDialog({ onSuccess }: { onSuccess: () => void }) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ImportResult | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
+
     try {
       setLoading(true);
       const res = await importTrackedChannelsCsvApi(file);
       setResult(res);
       toast.success(`Imported ${res.created} channels!`);
       onSuccess();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Import failed");
+    } catch (error: unknown) {
+      const message = isAxiosError<{ error?: string }>(error) ? error.response?.data?.error : undefined;
+      toast.error(message || "Import failed");
     } finally {
       setLoading(false);
     }
@@ -29,69 +42,92 @@ export function ImportDialog({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <>
-      <button
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition"
+        className="border border-border text-emerald-700 dark:text-emerald-400"
       >
-        <Upload className="w-3.5 h-3.5" />
+        <Upload className="h-3.5 w-3.5" />
         Import CSV
-      </button>
+      </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md bg-[#0e172a] border border-slate-800 rounded-xl p-6 shadow-2xl relative">
-            <button
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
+          <Card
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="import-dialog-title"
+            className="relative w-full max-w-md overflow-hidden shadow-2xl"
+          >
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+              className="absolute right-3 top-3 h-8 w-8 rounded-lg"
+              aria-label="Close import dialog"
             >
-              <X className="w-5 h-5" />
-            </button>
-            <h3 className="text-lg font-bold text-white mb-2">Import Tracked Channels</h3>
-            <p className="text-xs text-slate-400 mb-4">
-              Upload a CSV with columns: <code className="text-indigo-400">channel_id, channel_name, niche</code>
-            </p>
+              <X className="h-4 w-4" />
+            </Button>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="file"
-                accept=".csv"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="block w-full text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
-              />
-
-              {result && (
-                <div className="p-3 bg-slate-900 rounded-lg text-xs space-y-1">
-                  <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                    <CheckCircle className="w-4 h-4" /> Created: {result.created} | Skipped: {result.skipped}
-                  </div>
-                  {result.errors?.length > 0 && (
-                    <div className="text-rose-400 mt-1">
-                      {result.errors.map((e: any, idx: number) => (
-                        <div key={idx}>Row {e.row}: {e.message}</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"
-                >
-                  Close
-                </button>
-                <button
-                  type="submit"
-                  disabled={!file || loading}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50"
-                >
-                  {loading ? "Importing..." : "Upload & Process"}
-                </button>
+            <CardHeader className="border-b border-border pr-14">
+              <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Upload className="h-4 w-4" />
               </div>
-            </form>
-          </div>
+              <CardTitle id="import-dialog-title">Import Tracked Channels</CardTitle>
+              <CardDescription className="text-xs leading-5">
+                Upload a CSV containing <code className="font-medium text-primary">channel_id, channel_name, niche</code> columns.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="pt-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="channel-csv">CSV file</Label>
+                  <Input
+                    id="channel-csv"
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    className="h-auto cursor-pointer py-2 text-xs text-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-xs file:font-semibold file:text-primary-foreground hover:file:bg-primary/90"
+                  />
+                  <p className="text-xs text-muted-foreground">Only .csv files are accepted.</p>
+                </div>
+
+                {result && (
+                  <div className="space-y-2 rounded-xl border border-border bg-muted/50 p-3 text-xs">
+                    <div className="flex items-center gap-2 font-semibold text-emerald-700 dark:text-emerald-400">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Created: {result.created} · Skipped: {result.skipped}</span>
+                    </div>
+                    {result.errors && result.errors.length > 0 && (
+                      <div className="space-y-1 text-rose-700 dark:text-rose-400">
+                        <div className="flex items-center gap-2 font-semibold">
+                          <AlertTriangle className="h-4 w-4" />
+                          Import issues
+                        </div>
+                        {result.errors.map((error, index) => (
+                          <p key={`${error.row}-${index}`} className="pl-6">
+                            Row {error.row}: {error.message}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 border-t border-border pt-4">
+                  <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(false)}>
+                    Close
+                  </Button>
+                  <Button type="submit" size="sm" disabled={!file || loading}>
+                    <Upload className="h-3.5 w-3.5" />
+                    {loading ? "Importing..." : "Upload & Process"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       )}
     </>
