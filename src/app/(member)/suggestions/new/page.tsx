@@ -50,7 +50,7 @@ export default function NewSuggestionPage() {
       toast.success("AI suggestion generated!");
       router.push(`/suggestions/${res.id}`);
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "Generation failed.");
+      toast.error(err.response?.data?.error || err.message || "Generation failed.");
     } finally {
       setLoading(false);
     }
