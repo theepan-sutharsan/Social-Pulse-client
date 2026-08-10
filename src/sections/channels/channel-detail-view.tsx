@@ -30,10 +30,12 @@ export function ChannelDetailView() {
   const channelId = params?.id as string;
 
   const [detail, setDetail] = useState<any>(null);
+  const [growth, setGrowth] = useState<any>(null);
   const [revenue, setRevenue] = useState<any>(null);
   const [predictions, setPredictions] = useState<any>(null);
   const [topVideos, setTopVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [lowCpm, setLowCpm] = useState(2.0);
   const [highCpm, setHighCpm] = useState(8.0);
@@ -42,19 +44,24 @@ export function ChannelDetailView() {
     if (!channelId) return;
     try {
       setLoading(true);
-      const [dRes, , rRes, pRes, tvRes] = await Promise.all([
+      setError(null);
+      const [dRes, gRes, rRes, pRes, tvRes] = await Promise.allSettled([
         getChannelDetailApi(channelId),
         getChannelGrowthApi(channelId),
         getChannelRevenueApi(channelId, lowCpm, highCpm),
         getChannelPredictionsApi(channelId),
         getChannelTopVideosApi(channelId),
       ]);
-      setDetail(dRes);
-      setRevenue(rRes?.revenue_estimate || null);
-      setPredictions(pRes || null);
-      setTopVideos(tvRes?.top_videos || []);
+      if (dRes.status === "rejected") throw dRes.reason;
+      setDetail(dRes.value);
+      setGrowth(gRes.status === "fulfilled" ? gRes.value?.growth || null : null);
+      setRevenue(rRes.status === "fulfilled" ? rRes.value?.revenue_estimate || null : null);
+      setPredictions(pRes.status === "fulfilled" ? pRes.value || null : null);
+      setTopVideos(tvRes.status === "fulfilled" ? tvRes.value?.top_videos || [] : []);
+      const secondaryFailures = [gRes, rRes, pRes, tvRes].filter((result) => result.status === "rejected");
+      if (secondaryFailures.length) setError("Some analytics panels could not be loaded. Try syncing the channel and retrying.");
     } catch (err) {
-      console.error(err);
+      setError(getErrorMessage(err, "Unable to load SocialBlade analytics for this channel."));
     } finally {
       setLoading(false);
     }
@@ -66,10 +73,11 @@ export function ChannelDetailView() {
 
   const handleCpmUpdate = async () => {
     try {
+      setError(null);
       const res = await getChannelRevenueApi(channelId, lowCpm, highCpm);
       setRevenue(res?.revenue_estimate || null);
     } catch (e) {
-      console.error(e);
+      setError(getErrorMessage(e, "Unable to update the revenue estimate."));
     }
   };
 
@@ -87,19 +95,30 @@ export function ChannelDetailView() {
     );
   }
 
+  if (!detail?.channel) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4 p-6">
+        <Card className="border-destructive/30 bg-destructive/5"><CardContent className="space-y-3 p-6"><h1 className="text-lg font-bold text-destructive">SocialBlade analytics unavailable</h1><p className="text-sm text-muted-foreground">{error || "The channel could not be resolved."}</p><Button type="button" onClick={loadChannelData}>Retry</Button></CardContent></Card>
+      </div>
+    );
+  }
+
   const channel = detail?.channel || {};
   const analytics = detail?.analytics || {};
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 text-foreground sm:p-6">
+      {error && <Card className="border-amber-500/30 bg-amber-500/5"><CardContent className="flex items-center justify-between gap-4 p-4 text-sm"><span className="text-muted-foreground">{error}</span><Button type="button" variant="outline" size="sm" onClick={loadChannelData}>Retry</Button></CardContent></Card>}
       {/* Top Banner & Grade */}
       <Card className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-3xl border-border bg-gradient-to-r from-card via-primary/10 to-card p-6 shadow-sm sm:p-8 md:flex-row md:items-center">
-        <div className="flex items-center gap-5">
-          {channel.profile_image ? (
+        {channel.banner_url && <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${channel.banner_url})` }} />}
+        {channel.banner_url && <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/70" />}
+        <div className="relative z-10 flex items-center gap-5">
+          {(channel.profile_image || channel.thumbnail) ? (
             <img
-              src={channel.profile_image}
+              src={channel.profile_image || channel.thumbnail}
               alt={channel.channel_name}
-              className="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-500/30 shadow-lg"
+              className="h-20 w-20 rounded-2xl border-2 border-white/60 object-cover shadow-lg dark:border-white/30"
             />
           ) : (
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-primary/40 bg-primary/10 text-2xl font-bold text-primary">
@@ -124,7 +143,7 @@ export function ChannelDetailView() {
         </div>
 
         {/* SocialBlade Grade Box */}
-        <Card className="flex min-w-[200px] items-center justify-between gap-5 rounded-2xl border-border bg-card p-5 shadow-sm">
+        <Card className="relative z-10 flex min-w-[200px] items-center justify-between gap-5 rounded-2xl border-border bg-card/90 p-5 shadow-sm backdrop-blur-sm">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Social Grade</p>
             <h2 className="mt-0.5 text-4xl font-black text-emerald-600 dark:text-emerald-400">{analytics.channel_grade || "A"}</h2>
@@ -178,6 +197,8 @@ export function ChannelDetailView() {
           </div>
         </Card>
       </div>
+
+      {growth && <Card className="rounded-2xl border-border bg-card shadow-sm"><CardHeader><CardTitle className="text-lg font-bold text-foreground">Growth intelligence</CardTitle></CardHeader><CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4"><div><span className="block text-xs text-muted-foreground">Daily subscribers</span><strong>{Number(growth.daily_subscriber_growth || 0).toLocaleString()}</strong></div><div><span className="block text-xs text-muted-foreground">Daily views</span><strong>{Number(growth.daily_view_growth || 0).toLocaleString()}</strong></div><div><span className="block text-xs text-muted-foreground">Growth trend</span><strong className="capitalize">{growth.growth_trend || "stable"}</strong></div><div><span className="block text-xs text-muted-foreground">Growth percentage</span><strong>{Number(growth.growth_percentage || 0).toFixed(2)}%</strong></div></CardContent></Card>}
 
       {/* SocialBlade Revenue Estimator & Config */}
       <Card className="rounded-2xl border-border bg-card shadow-sm">
@@ -306,4 +327,12 @@ export function ChannelDetailView() {
       </Card>
     </div>
   );
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (typeof error === "object" && error && "response" in error) {
+    const response = (error as { response?: { data?: { error?: string } } }).response;
+    if (response?.data?.error) return response.data.error;
+  }
+  return error instanceof Error ? error.message : fallback;
 }
