@@ -6,6 +6,7 @@ import {
   startChannelAnalysisApi,
   getChannelAnalysisHistoryApi,
   getChannelAnalysisRunApi,
+  deleteChannelAnalysisRunApi,
 } from '@/services/yt-channel-analysis';
 import { YTAnalysisRun, YTVideoAnalysisEntry, YTOverallChannelInsights, YTContentSuggestion } from '@/types/yt-channel-analysis';
 import { toast } from 'sonner';
@@ -40,6 +41,7 @@ import {
   FileText,
   Copy,
   Check,
+  Trash2,
 } from 'lucide-react';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -525,9 +527,11 @@ function AnalysisResult({ run }: { run: YTAnalysisRun }) {
 function HistoryPanel({
   history,
   onSelect,
+  onDelete,
 }: {
   history: YTAnalysisRun[];
   onSelect: (run: YTAnalysisRun) => void;
+  onDelete: (run: YTAnalysisRun) => void;
 }) {
   if (history.length === 0) {
     return (
@@ -542,11 +546,18 @@ function HistoryPanel({
       {history.map((run) => {
         const ch = run.channel;
         return (
-          <Button
+          <div
             key={run.id}
+            role="button"
+            tabIndex={0}
             onClick={() => onSelect(run)}
-            variant="outline"
-            className="group h-auto w-full justify-start rounded-xl border-border bg-card px-4 py-3 text-left hover:border-primary/40 hover:bg-muted/50"
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onSelect(run);
+              }
+            }}
+            className="group flex h-auto w-full cursor-pointer items-center justify-start gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left hover:border-primary/40 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {ch?.thumbnail_url && (
               <img
@@ -574,8 +585,20 @@ function HistoryPanel({
             >
               {run.status}
             </span>
+            <button
+              type="button"
+              aria-label={`Delete ${ch?.channel_title || `analysis run ${run.id}`}`}
+              title="Delete analysis"
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(run);
+              }}
+              className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
             <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
-          </Button>
+          </div>
         );
       })}
     </div>
@@ -647,6 +670,18 @@ export default function YTChannelAnalysisPage() {
     } finally {
       setLoading(false);
       setStep('idle');
+    }
+  };
+
+  const handleDelete = async (run: YTAnalysisRun) => {
+    if (!window.confirm('Delete this saved channel analysis? This cannot be undone.')) return;
+    try {
+      await deleteChannelAnalysisRunApi(run.id);
+      setHistory((items) => items.filter((item) => item.id !== run.id));
+      if (currentRun?.id === run.id) setCurrentRun(null);
+      toast.success('Channel analysis deleted.');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to delete channel analysis.');
     }
   };
 
@@ -825,6 +860,7 @@ export default function YTChannelAnalysisPage() {
                     setCurrentRun(run);
                     setActiveTab('analyze');
                   }}
+                  onDelete={handleDelete}
                 />
               )}
             </>

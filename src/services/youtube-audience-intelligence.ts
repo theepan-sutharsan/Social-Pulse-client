@@ -34,6 +34,10 @@ export async function getAudienceRunApi(run_id: number): Promise<AudienceRun> {
   return res.data.run as AudienceRun;
 }
 
+export async function deleteAudienceRunApi(run_id: number): Promise<void> {
+  await apiClient.delete(`/api/youtube-audience/runs/${run_id}`);
+}
+
 export async function getAudienceHistoryApi(): Promise<AudienceRun[]> {
   const res = await apiClient.get("/api/youtube-audience/history");
   return (res.data.history || []) as AudienceRun[];

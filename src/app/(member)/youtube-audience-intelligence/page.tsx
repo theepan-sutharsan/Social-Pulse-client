@@ -45,6 +45,7 @@ import {
   getAudienceCommentsApi,
   getAudienceHistoryApi,
   getAudienceRunApi,
+  deleteAudienceRunApi,
   purgeAudienceCommentsApi,
   startAudienceAnalysisApi,
 } from "@/services/youtube-audience-intelligence";
@@ -468,6 +469,24 @@ export default function YouTubeAudienceIntelligencePage() {
     } finally { setHistoryLoadingId(null); }
   }
 
+  async function handleHistoryDelete(run: AudienceRun) {
+    if (!window.confirm("Delete this saved audience analysis? This cannot be undone.")) return;
+    try {
+      await deleteAudienceRunApi(run.id);
+      setHistory((items) => items.filter((item) => item.id !== run.id));
+      if (currentRun?.id === run.id) {
+        setCurrentRun(null);
+        setComments([]);
+        setCommentTotal(0);
+        setTopCommentGroups({});
+      }
+      toast.success("Audience analysis deleted.");
+    } catch (error) {
+      const message = getErrorMessage(error, "Unable to delete this audience analysis.");
+      setErrorMessage(message); toast.error(message);
+    }
+  }
+
   const kpis = report?.kpis;
   const recommendationRows = useMemo(() => report?.content_opportunities || [], [report]);
   const filterOptions = useMemo(() => ({
@@ -526,7 +545,7 @@ export default function YouTubeAudienceIntelligencePage() {
             <CommentTable comments={comments} total={commentTotal} onSearch={setSearch} onSentiment={setSentiment} onTopic={setTopic} onLanguage={setLanguage} onIntent={setIntent} onEmotion={setEmotion} onPersona={setPersona} onSpam={setSpam} onToxicity={setToxicity} onSort={setSort} onMinQuality={setMinQuality} search={search} sentiment={sentiment} topic={topic} language={language} intent={intent} emotion={emotion} persona={persona} spam={spam} toxicity={toxicity} sort={sort} minQuality={minQuality} topics={filterOptions.topics} languages={filterOptions.languages} intents={filterOptions.intents} emotions={filterOptions.emotions} personas={filterOptions.personas} loading={commentLoading} />
           </>}
 
-          <Card><CardHeader><CardTitle className="flex items-center gap-2 text-base"><History className="size-4 text-primary" /> Analysis history</CardTitle><CardDescription>Select a run to load its complete saved report.</CardDescription></CardHeader><CardContent className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">{history.length ? history.slice(0, 12).map((run) => <Button key={run.id} type="button" variant="outline" disabled={historyLoadingId === run.id} aria-busy={historyLoadingId === run.id} onClick={() => handleHistorySelect(run)} className="h-auto justify-start gap-3 px-4 py-3 text-left"><div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">{historyLoadingId === run.id ? <LoaderCircle className="size-4 animate-spin" /> : <Video className="size-4" />}</div><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{run.video?.title || run.video_id}</span><span className="mt-1 block text-xs text-muted-foreground">{formatDate(run.created_at)} · {formatNumber(run.analyzed_count)} analyzed</span></span><Badge variant={run.status === "COMPLETED" ? "success" : run.status === "FAILED" ? "destructive" : "warning"}>{statusLabel(run.status)}</Badge></Button>) : <p className="text-sm text-muted-foreground">No analysis runs yet. Your completed runs will appear here.</p>}</CardContent></Card>
+          <Card><CardHeader><CardTitle className="flex items-center gap-2 text-base"><History className="size-4 text-primary" /> Analysis history</CardTitle><CardDescription>Select a run to load its complete saved report.</CardDescription></CardHeader><CardContent className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">{history.length ? history.slice(0, 12).map((run) => <div key={run.id} className="flex h-auto items-center gap-3 rounded-lg border border-border bg-card px-4 py-3"><button type="button" disabled={historyLoadingId === run.id} aria-busy={historyLoadingId === run.id} onClick={() => handleHistorySelect(run)} className="flex min-w-0 flex-1 items-center gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">{historyLoadingId === run.id ? <LoaderCircle className="size-4 animate-spin" /> : <Video className="size-4" />}</div><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{run.video?.title || run.video_id}</span><span className="mt-1 block text-xs text-muted-foreground">{formatDate(run.created_at)} · {formatNumber(run.analyzed_count)} analyzed</span></span><Badge variant={run.status === "COMPLETED" ? "success" : run.status === "FAILED" ? "destructive" : "warning"}>{statusLabel(run.status)}</Badge></button><button type="button" aria-label={`Delete ${run.video?.title || `analysis run ${run.id}`} `} title="Delete analysis" onClick={() => handleHistoryDelete(run)} className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Trash2 className="size-4" /></button></div>) : <p className="text-sm text-muted-foreground">No analysis runs yet. Your completed runs will appear here.</p>}</CardContent></Card>
           <p className="flex items-center gap-2 text-xs text-muted-foreground"><Filter className="size-3.5" /> Metrics are calculated from stored API data; AI enrichment only edits narratives and is marked in the report.</p>
         </main>
       </div>
