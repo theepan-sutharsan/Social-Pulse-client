@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { AuthenticatedRoute } from "@/components/auth-guard";
 import { 
   analyzeVideoApi, 
-  getVideoAnalysisHistoryApi 
+  getVideoAnalysisHistoryApi,
+  getVideoTranscriptApi,
+  VideoTranscript,
 } from "@/services/video-analysis";
 import { VideoAnalysis } from "@/types/video-analysis";
 import { VideoAnalysisDashboard } from "@/components/video-analysis/video-analysis-dashboard";
@@ -19,6 +21,8 @@ import {
   FileAudio,
   Brain,
   Captions,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +40,10 @@ export default function VideoAnalysisPage() {
   const [history, setHistory] = useState<VideoAnalysis[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
+  const [activeTab, setActiveTab] = useState<'analysis' | 'transcript'>('analysis');
+  const [transcriptLoading, setTranscriptLoading] = useState(false);
+  const [transcriptResult, setTranscriptResult] = useState<VideoTranscript | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const loadHistory = async () => {
     try {
@@ -63,6 +71,7 @@ export default function VideoAnalysisPage() {
     setAnalyzing(true);
     setErrorMsg('');
     setCurrentAnalysis(null);
+    setTranscriptResult(null);
 
     // Simulate pipeline progress steps for clear UI feedback
     setStep('downloading');
@@ -96,6 +105,52 @@ export default function VideoAnalysisPage() {
     }
   };
 
+  const handleTranscript = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url.trim()) {
+      toast.error("Please enter a valid YouTube URL.");
+      return;
+    }
+
+    setTranscriptLoading(true);
+    setErrorMsg('');
+    setTranscriptResult(null);
+    setCurrentAnalysis(null);
+    setCopied(false);
+
+    try {
+      const result = await getVideoTranscriptApi(url.trim());
+      setTranscriptResult(result);
+      toast.success("Video transcript fetched successfully!");
+      setUrl('');
+    } catch (err: any) {
+      const detail = err.response?.data?.error || "Failed to fetch transcript. Please check the URL and try again.";
+      setErrorMsg(detail);
+      toast.error(detail);
+    } finally {
+      setTranscriptLoading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    if (activeTab === 'transcript') {
+      return handleTranscript(e);
+    }
+    return handleAnalyze(e);
+  };
+
+  const handleCopyTranscript = async () => {
+    if (!transcriptResult?.transcript) return;
+    try {
+      await navigator.clipboard.writeText(transcriptResult.transcript);
+      setCopied(true);
+      toast.success("Transcript copied to clipboard.");
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.error("Unable to copy transcript.");
+    }
+  };
+
   return (
     <AuthenticatedRoute>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -103,12 +158,49 @@ export default function VideoAnalysisPage() {
           eyebrow="AI Powered Video Intelligence"
           icon={<Sparkles className="h-5 w-5 text-primary" />}
           title="YouTube Video Analyzer"
-          description="Submit any YouTube video link. Transcripts are fetched instantly via YouTube captions when available, or extracted with Whisper, then analyzed automatically."
+          description="Analyze a video with AI or fetch its YouTube captions as a clean transcript."
         />
 
         {/* Form Card */}
         <Card className="relative overflow-hidden rounded-2xl border-border bg-card p-6 shadow-sm">
-          <form onSubmit={handleAnalyze} className="space-y-4">
+          <div role="tablist" aria-label="Video tools" className="mb-6 grid grid-cols-1 gap-2 rounded-xl bg-muted/50 p-1 sm:grid-cols-2">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'analysis'}
+              onClick={() => {
+                setActiveTab('analysis');
+                setErrorMsg('');
+              }}
+              className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                activeTab === 'analysis'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Sparkles className="h-4 w-4" />
+              AI Video Analysis
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'transcript'}
+              onClick={() => {
+                setActiveTab('transcript');
+                setErrorMsg('');
+              }}
+              className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                activeTab === 'transcript'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Captions className="h-4 w-4" />
+              Video Transcript
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="youtube-video-url" className="block text-xs font-bold text-foreground uppercase tracking-wider">
                 YouTube Video URL
@@ -124,23 +216,28 @@ export default function VideoAnalysisPage() {
                   placeholder="https://www.youtube.com/watch?v=..."
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  disabled={analyzing}
+                  disabled={analyzing || transcriptLoading}
                   className="w-full rounded-xl border-input bg-background py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground"
                   required
                 />
               </div>
               <Button
                 type="submit"
-                disabled={analyzing || !url.trim()}
+                disabled={analyzing || transcriptLoading || !url.trim()}
                 className="shrink-0 rounded-xl px-6 py-3 text-sm font-semibold"
               >
-                {analyzing ? (
+                {analyzing || transcriptLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Analyzing Video...
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {activeTab === 'transcript' ? 'Fetching Transcript...' : 'Analyzing Video...'}
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" /> Start AI Analysis
+                    {activeTab === 'transcript' ? (
+                      <><Captions className="w-4 h-4" /> Get Transcript</>
+                    ) : (
+                      <><Sparkles className="w-4 h-4" /> Start AI Analysis</>
+                    )}
                   </>
                 )}
               </Button>
@@ -212,6 +309,13 @@ export default function VideoAnalysisPage() {
             </div>
           )}
 
+          {transcriptLoading && activeTab === 'transcript' && (
+            <div className="mt-6 flex items-center gap-3 rounded-xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              Fetching captions with YouTube Transcript API...
+            </div>
+          )}
+
           {/* Error Banner */}
           {errorMsg && (
             <div className="mt-4 flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-xs font-medium text-destructive">
@@ -220,6 +324,42 @@ export default function VideoAnalysisPage() {
             </div>
           )}
         </Card>
+
+        {transcriptResult && activeTab === 'transcript' && (
+          <Card className="rounded-2xl border-border bg-card shadow-sm">
+            <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
+                  <Captions className="h-5 w-5 text-primary" /> Video Transcript
+                </CardTitle>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Captions fetched directly from YouTube Transcript API
+                  {transcriptResult.language ? ` • ${transcriptResult.language}` : ''}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCopyTranscript}
+                className="rounded-lg text-xs"
+              >
+                {copied ? <Check className="mr-2 h-4 w-4 text-emerald-500" /> : <Copy className="mr-2 h-4 w-4" />}
+                {copied ? 'Copied' : 'Copy Transcript'}
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                <Badge variant="secondary" className="rounded-full">Video ID: {transcriptResult.video_id}</Badge>
+                <Badge variant="secondary" className="rounded-full">Source: youtube-transcript-api</Badge>
+              </div>
+              <div className="max-h-[32rem] overflow-y-auto rounded-xl border border-border bg-muted/20 p-5">
+                <p className="whitespace-pre-wrap text-sm leading-7 text-foreground">
+                  {transcriptResult.transcript}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Current Active Analysis Results */}
         {currentAnalysis && (
