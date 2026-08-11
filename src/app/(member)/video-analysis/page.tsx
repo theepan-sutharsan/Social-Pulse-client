@@ -5,6 +5,7 @@ import { AuthenticatedRoute } from "@/components/auth-guard";
 import { 
   analyzeVideoApi, 
   getVideoAnalysisHistoryApi,
+  deleteVideoAnalysisApi,
   getVideoTranscriptApi,
   VideoTranscript,
 } from "@/services/video-analysis";
@@ -23,6 +24,7 @@ import {
   Captions,
   Copy,
   Check,
+  Trash2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -102,6 +104,19 @@ export default function VideoAnalysisPage() {
     } finally {
       setAnalyzing(false);
       setStep('idle');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Delete this saved video analysis? This cannot be undone.")) return;
+
+    try {
+      await deleteVideoAnalysisApi(id);
+      setHistory((items) => items.filter((item) => item.id !== id));
+      if (currentAnalysis?.id === id) setCurrentAnalysis(null);
+      toast.success("Video analysis deleted.");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to delete video analysis.");
     }
   };
 
@@ -412,9 +427,23 @@ export default function VideoAnalysisPage() {
                     <h3 className="line-clamp-2 text-sm font-bold text-foreground">
                       {item.video_title || "YouTube Video"}
                     </h3>
-                    <span className="shrink-0 rounded border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-extrabold text-primary">
-                      {item.overall_score?.toFixed(1) || "8.0"}
-                    </span>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="rounded border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-extrabold text-primary">
+                        {item.overall_score?.toFixed(1) || "8.0"}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`Delete ${item.video_title || "video analysis"}`}
+                        title="Delete analysis"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDelete(item.id);
+                        }}
+                        className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
 
                   <p className="line-clamp-2 text-xs text-muted-foreground">

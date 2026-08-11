@@ -30,6 +30,10 @@ export async function getVideoAnalysisDetailApi(id: number): Promise<VideoAnalys
   return res.data.analysis as VideoAnalysis;
 }
 
+export async function deleteVideoAnalysisApi(id: number): Promise<void> {
+  await apiClient.delete(`/api/video-analysis/${id}`);
+}
+
 export async function getVideoTranscriptApi(youtube_url: string): Promise<VideoTranscript> {
   const res = await apiClient.post("/api/video-analysis/transcript", { youtube_url });
   return res.data.transcript as VideoTranscript;
