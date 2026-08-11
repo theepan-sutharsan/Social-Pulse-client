@@ -27,3 +27,7 @@ export async function getChannelAnalysisHistoryApi(): Promise<YTAnalysisHistoryR
   const res = await apiClient.get("/api/yt-channel-analysis/history");
   return res.data as YTAnalysisHistoryResponse;
 }
+
+export async function deleteChannelAnalysisRunApi(run_id: number): Promise<void> {
+  await apiClient.delete(`/api/yt-channel-analysis/${run_id}`);
+}
