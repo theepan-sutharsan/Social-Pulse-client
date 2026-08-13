@@ -24,6 +24,7 @@ import {
   Shield,
   Sparkles,
   UserRound,
+  UserCog,
   UsersRound,
   Video,
   X,
@@ -62,12 +63,13 @@ const workspaceGroups: NavGroup[] = [
 ];
 
 const adminGroup: NavGroup = {
-  label: "Administration",
+  label: "Admin console",
   items: [
-    { href: "/admin/dashboard", label: "Admin overview", icon: Shield },
-    { href: "/admin/accounts", label: "All accounts", icon: Radio },
-    { href: "/admin/tracked-channels", label: "Tracked channels", icon: Library },
-    { href: "/admin/suggestions", label: "All suggestions", icon: Sparkles },
+    { href: "/admin/dashboard", label: "Command center", icon: Shield },
+    { href: "/admin/users", label: "User access", icon: UserCog },
+    { href: "/admin/accounts", label: "Accounts & connections", icon: Radio },
+    { href: "/admin/tracked-channels", label: "Research channels", icon: Library },
+    { href: "/admin/suggestions", label: "AI activity", icon: Sparkles },
   ],
 };
 
@@ -111,7 +113,8 @@ function updateSidebarVisibility(hidden: boolean) {
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { user, isAdmin, logout } = useAuth();
-  const groups = isAdmin ? [...workspaceGroups, adminGroup] : workspaceGroups;
+  const isAdminRoute = pathname.startsWith("/admin");
+  const groups = isAdmin && isAdminRoute ? [adminGroup] : isAdmin ? [...workspaceGroups, adminGroup] : workspaceGroups;
   const initials = (user?.full_name || user?.email || "SP")
     .split(/\s|@/)
     .filter(Boolean)
@@ -124,9 +127,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <div className="flex h-20 items-center px-5">
         <Link href="/dashboard" onClick={onNavigate} className="flex min-w-0 items-center gap-3">
           <Image src="/social-pulse-mark.png" alt="" width={44} height={44} className="h-11 w-11 shrink-0 object-contain" priority />
-          <span className="truncate text-xl font-black tracking-tight text-sidebar-foreground">
-            Social<span className="text-primary">Pulse</span>
-          </span>
+          <div className="min-w-0">
+            <span className="block truncate text-xl font-black tracking-tight text-sidebar-foreground">
+              Social<span className="text-primary">Pulse</span>
+            </span>
+            {isAdminRoute && isAdmin && (
+              <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Admin console</span>
+            )}
+          </div>
         </Link>
       </div>
 
