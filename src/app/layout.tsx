@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   title: "Social Pulse",
   description:
     "Connect YouTube, Instagram, Facebook & TikTok. Extract video reach patterns and generate AI titles, hooks, hashtags & calendars.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/social-pulse-mark.png",
+  },
 };
 
 export default function RootLayout({

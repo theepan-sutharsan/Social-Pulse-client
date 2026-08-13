@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity } from "lucide-react";
+import Image from "next/image";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,7 @@ export function PublicHeader() {
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5 text-xl font-black tracking-tight text-foreground">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
-            <Activity className="size-5" />
-          </span>
+          <Image src="/social-pulse-mark.png" alt="" width={40} height={40} className="size-10 object-contain" priority />
           <span>
             Social<span className="text-primary">Pulse</span>
           </span>
