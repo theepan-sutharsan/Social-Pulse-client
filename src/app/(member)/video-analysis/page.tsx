@@ -8,6 +8,7 @@ import {
   deleteVideoAnalysisApi,
   getVideoTranscriptApi,
   VideoTranscript,
+  type TranscriptionLanguage,
 } from "@/services/video-analysis";
 import { VideoAnalysis } from "@/types/video-analysis";
 import { VideoAnalysisDashboard } from "@/components/video-analysis/video-analysis-dashboard";
@@ -46,6 +47,9 @@ export default function VideoAnalysisPage() {
   const [transcriptLoading, setTranscriptLoading] = useState(false);
   const [transcriptResult, setTranscriptResult] = useState<VideoTranscript | null>(null);
   const [copied, setCopied] = useState(false);
+  const [transcriptionLanguage, setTranscriptionLanguage] = useState<TranscriptionLanguage>('auto');
+  const [languagePromptAction, setLanguagePromptAction] = useState<'analysis' | 'transcript' | null>(null);
+  const [promptLanguage, setPromptLanguage] = useState<Exclude<TranscriptionLanguage, 'auto'>>('ta');
 
   const loadHistory = async () => {
     try {
@@ -63,8 +67,8 @@ export default function VideoAnalysisPage() {
     loadHistory();
   }, []);
 
-  const handleAnalyze = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAnalyze = async (e?: React.FormEvent, requestedLanguage: TranscriptionLanguage = transcriptionLanguage) => {
+    e?.preventDefault();
     if (!url.trim()) {
       toast.error("Please enter a valid YouTube URL.");
       return;
@@ -87,7 +91,7 @@ export default function VideoAnalysisPage() {
     }, 9000);
 
     try {
-      const result = await analyzeVideoApi(url.trim());
+      const result = await analyzeVideoApi(url.trim(), requestedLanguage);
       clearTimeout(progressTimer1);
       clearTimeout(progressTimer2);
       
@@ -98,6 +102,11 @@ export default function VideoAnalysisPage() {
     } catch (err: any) {
       clearTimeout(progressTimer1);
       clearTimeout(progressTimer2);
+      if (err.response?.status === 409 && err.response?.data?.requires_language_selection) {
+        setPromptLanguage('ta');
+        setLanguagePromptAction('analysis');
+        return;
+      }
       const detail = err.response?.data?.error || "Failed to analyze video. Please check URL and try again.";
       setErrorMsg(detail);
       toast.error(detail);
@@ -120,8 +129,8 @@ export default function VideoAnalysisPage() {
     }
   };
 
-  const handleTranscript = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleTranscript = async (e?: React.FormEvent, requestedLanguage: TranscriptionLanguage = transcriptionLanguage) => {
+    e?.preventDefault();
     if (!url.trim()) {
       toast.error("Please enter a valid YouTube URL.");
       return;
@@ -134,11 +143,16 @@ export default function VideoAnalysisPage() {
     setCopied(false);
 
     try {
-      const result = await getVideoTranscriptApi(url.trim());
+      const result = await getVideoTranscriptApi(url.trim(), requestedLanguage);
       setTranscriptResult(result);
       toast.success("Video transcript fetched successfully!");
       setUrl('');
     } catch (err: any) {
+      if (err.response?.status === 409 && err.response?.data?.requires_language_selection) {
+        setPromptLanguage('ta');
+        setLanguagePromptAction('transcript');
+        return;
+      }
       const detail = err.response?.data?.error || "Failed to fetch transcript. Please check the URL and try again.";
       setErrorMsg(detail);
       toast.error(detail);
@@ -152,6 +166,17 @@ export default function VideoAnalysisPage() {
       return handleTranscript(e);
     }
     return handleAnalyze(e);
+  };
+
+  const handleLanguagePromptSubmit = () => {
+    const action = languagePromptAction;
+    setTranscriptionLanguage(promptLanguage);
+    setLanguagePromptAction(null);
+    if (action === 'analysis') {
+      void handleAnalyze(undefined, promptLanguage);
+    } else if (action === 'transcript') {
+      void handleTranscript(undefined, promptLanguage);
+    }
   };
 
   const handleCopyTranscript = async () => {
@@ -257,7 +282,43 @@ export default function VideoAnalysisPage() {
                 )}
               </Button>
             </div>
+
           </form>
+
+          {languagePromptAction && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="transcription-language-title">
+              <div className="w-full max-w-md space-y-5 rounded-2xl border border-border bg-card p-6 shadow-xl">
+                <div className="space-y-2">
+                  <h2 id="transcription-language-title" className="text-lg font-bold text-foreground">
+                    Select Transcription Language
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    YouTube does not provide a transcript for this video. Choose the spoken language so Whisper can transcribe the audio accurately.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="transcription-language-popup">Transcription Language</Label>
+                  <select
+                    id="transcription-language-popup"
+                    value={promptLanguage}
+                    onChange={(e) => setPromptLanguage(e.target.value as Exclude<TranscriptionLanguage, 'auto'>)}
+                    className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="ta">Tamil (தமிழ்)</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <Button type="button" variant="outline" onClick={() => setLanguagePromptAction(null)}>
+                    Cancel
+                  </Button>
+                  <Button type="button" onClick={handleLanguagePromptSubmit}>
+                    Transcribe Audio
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Pipeline Loading State Indicator */}
           {analyzing && (
@@ -284,7 +345,11 @@ export default function VideoAnalysisPage() {
                   )}
                   <div className="text-xs font-medium">
                     1. Fetching Transcript
-                    <p className="text-[10px] opacity-60 font-normal mt-0.5">Captions → Whisper fallback</p>
+                    <p className="text-[10px] opacity-60 font-normal mt-0.5">
+                      {transcriptionLanguage === 'ta'
+                        ? 'Tamil captions → Faster-Whisper (ta)'
+                        : 'YouTube Transcript API → Faster-Whisper fallback'}
+                    </p>
                   </div>
                 </div>
 
@@ -327,7 +392,9 @@ export default function VideoAnalysisPage() {
           {transcriptLoading && activeTab === 'transcript' && (
             <div className="mt-6 flex items-center gap-3 rounded-xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              Fetching captions with YouTube Transcript API...
+              {transcriptionLanguage === 'ta'
+                ? 'Fetching Tamil captions with YouTube Transcript API...'
+                : 'Fetching captions with YouTube Transcript API...'}
             </div>
           )}
 
@@ -344,11 +411,14 @@ export default function VideoAnalysisPage() {
           <Card className="rounded-2xl border-border bg-card shadow-sm">
             <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
-                  <Captions className="h-5 w-5 text-primary" /> Video Transcript
+                  <CardTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
+                  <Captions className="h-5 w-5 text-primary" />
+                  {transcriptResult.source === 'whisper' ? 'Transcribed Audio Text' : 'YouTube Transcript'}
                 </CardTitle>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Captions fetched directly from YouTube Transcript API
+                  {transcriptResult.source === 'whisper'
+                    ? 'Generated from video audio using Whisper'
+                    : 'Fetched directly from YouTube Transcript API'}
                   {transcriptResult.language ? ` • ${transcriptResult.language}` : ''}
                 </p>
               </div>
@@ -365,7 +435,9 @@ export default function VideoAnalysisPage() {
             <CardContent className="space-y-4">
               <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                 <Badge variant="secondary" className="rounded-full">Video ID: {transcriptResult.video_id}</Badge>
-                <Badge variant="secondary" className="rounded-full">Source: youtube-transcript-api</Badge>
+                <Badge variant="secondary" className="rounded-full">
+                  Source: {transcriptResult.source === 'whisper' ? 'Whisper audio transcription' : 'YouTube Transcript API'}
+                </Badge>
               </div>
               <div className="max-h-[32rem] overflow-y-auto rounded-xl border border-border bg-muted/20 p-5">
                 <p className="whitespace-pre-wrap text-sm leading-7 text-foreground">

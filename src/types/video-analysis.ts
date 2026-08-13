@@ -37,6 +37,8 @@ export interface AnalysisJSON {
   engagement_triggers: EngagementTriggers;
   retention_risk_points: RetentionRiskPoint[];
   top_3_action_items: string[];
+  transcript_source?: 'youtube_transcript_api' | 'whisper';
+  transcript_language?: string;
 }
 
 export interface ThumbnailAnalysisJSON {

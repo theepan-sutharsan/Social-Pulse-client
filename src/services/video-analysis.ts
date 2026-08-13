@@ -11,12 +11,17 @@ export type VideoTranscript = {
   video_id: string;
   transcript: string;
   language?: string | null;
-  source: "youtube_transcript_api";
+  source: "youtube_transcript_api" | "whisper";
   segments: VideoTranscriptSegment[];
 };
 
-export async function analyzeVideoApi(youtube_url: string): Promise<VideoAnalysis> {
-  const res = await apiClient.post("/api/video-analysis/analyze", { youtube_url });
+export type TranscriptionLanguage = "auto" | "ta" | "en";
+
+export async function analyzeVideoApi(
+  youtube_url: string,
+  language: TranscriptionLanguage = "auto",
+): Promise<VideoAnalysis> {
+  const res = await apiClient.post("/api/video-analysis/analyze", { youtube_url, language });
   return res.data.analysis as VideoAnalysis;
 }
 
@@ -34,7 +39,10 @@ export async function deleteVideoAnalysisApi(id: number): Promise<void> {
   await apiClient.delete(`/api/video-analysis/${id}`);
 }
 
-export async function getVideoTranscriptApi(youtube_url: string): Promise<VideoTranscript> {
-  const res = await apiClient.post("/api/video-analysis/transcript", { youtube_url });
+export async function getVideoTranscriptApi(
+  youtube_url: string,
+  language: TranscriptionLanguage = "auto",
+): Promise<VideoTranscript> {
+  const res = await apiClient.post("/api/video-analysis/transcript", { youtube_url, language });
   return res.data.transcript as VideoTranscript;
 }
