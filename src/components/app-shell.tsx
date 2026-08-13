@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 import { YouTubeIcon } from "@/components/icons/youtube-icon";
@@ -10,7 +11,6 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import {
-  Activity,
   Bell,
   BrainCircuit,
   LayoutDashboard,
@@ -88,9 +88,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-20 items-center px-5">
         <Link href="/dashboard" onClick={onNavigate} className="flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-primary/30">
-            <Activity className="h-5 w-5" />
-          </span>
+          <Image src="/social-pulse-mark.png" alt="" width={44} height={44} className="h-11 w-11 shrink-0 object-contain" priority />
           <span className="truncate text-xl font-black tracking-tight text-sidebar-foreground">
             Social<span className="text-primary">Pulse</span>
           </span>
@@ -222,9 +220,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle compact />
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Activity className="h-4 w-4" />
-          </div>
+          <Image src="/social-pulse-mark.png" alt="" width={40} height={40} className="h-10 w-10 object-contain" priority />
         </div>
       </header>
 
