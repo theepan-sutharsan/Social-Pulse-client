@@ -15,6 +15,9 @@ export function PublicHeader() {
           </span>
         </Link>
         <nav className="flex items-center gap-2" aria-label="Public navigation">
+          <Button asChild variant="ghost" className="hidden sm:inline-flex">
+            <Link href="/pricing">Pricing</Link>
+          </Button>
           <ThemeToggle compact />
           <Button asChild variant="ghost" className="hidden sm:inline-flex">
             <Link href="/auth/login">Sign in</Link>

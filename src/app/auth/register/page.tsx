@@ -2,24 +2,34 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isAxiosError } from "axios";
-import { Activity, ArrowRight, Lock, Mail, Sparkles, User } from "lucide-react";
+import { Activity, ArrowRight, Mail, Sparkles, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/password-input";
 import { useAuth } from "@/providers/auth-provider";
 import { registerApi } from "@/services/auth";
+import { pricingPlans } from "@/lib/pricing";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { login } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    const plan = new URLSearchParams(window.location.search).get("plan");
+    if (plan && pricingPlans.some((item) => item.name.toLowerCase() === plan.toLowerCase())) {
+      setSelectedPlan(plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase());
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +58,11 @@ export default function RegisterPage() {
           <CardDescription className="max-w-sm text-xs">
             Join Social Pulse and start optimizing your video reach with AI.
           </CardDescription>
+          {selectedPlan && (
+            <div className="mt-3 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
+              You&apos;re starting with the {selectedPlan} plan · Rs {pricingPlans.find((item) => item.name === selectedPlan)?.price.toLocaleString("en-LK")} / month
+            </div>
+          )}
         </CardHeader>
 
         <CardContent className="px-6 pb-8 pt-6 sm:px-8">
@@ -88,19 +103,15 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                  className="pl-10"
-                />
-              </div>
+              <PasswordInput
+                id="password"
+                autoComplete="new-password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
+              />
             </div>
 
             <Button type="submit" disabled={loading} className="w-full">

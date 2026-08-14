@@ -38,6 +38,11 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
 
   const content = analysis.analysis_json || {};
   const thumbnail = analysis.thumbnail_analysis_json || {};
+  const isWhisperTranscript = content.transcript_source === 'whisper';
+  const transcriptTitle = isWhisperTranscript ? 'Transcribed Audio Text' : 'YouTube Transcript';
+  const transcriptSource = isWhisperTranscript
+    ? 'Generated from video audio using Whisper.'
+    : 'Fetched directly from YouTube Transcript API.';
 
   const overallScore = analysis.overall_score || content.overall_score || 0;
 
@@ -342,8 +347,9 @@ export function VideoAnalysisDashboard({ analysis }: VideoAnalysisDashboardProps
       {activeTab === 'transcript' && (
         <Card className="space-y-4 rounded-2xl border-border bg-card p-6">
           <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-            <FileText className="h-5 w-5 text-primary" /> Transcribed Audio Text
+            <FileText className="h-5 w-5 text-primary" /> {transcriptTitle}
           </h2>
+          <p className="text-xs text-muted-foreground">{transcriptSource}</p>
           <div className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-xl border border-border bg-muted/40 p-4 font-mono text-xs leading-relaxed text-muted-foreground">
             {analysis.transcript || "No transcript available."}
           </div>

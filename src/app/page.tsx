@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PublicHeader } from "@/components/public-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, TrendingUp, Video, ArrowRight } from "lucide-react";
+import { PricingSection } from "@/components/pricing-section";
 
 export default function LandingPage() {
   return (
@@ -77,6 +78,8 @@ export default function LandingPage() {
           </CardContent>
         </Card>
       </section>
+
+      <PricingSection compact />
     </div>
   );
 }

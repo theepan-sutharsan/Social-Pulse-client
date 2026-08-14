@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from "react";
-import { Lock, Mail, Shield, User } from "lucide-react";
+import { isAxiosError } from "axios";
+import { Mail, Shield, User } from "lucide-react";
 import { toast } from "sonner";
 import { AuthenticatedRoute } from "@/components/auth-guard";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
+import { PasswordInput } from "@/components/password-input";
 import { useAuth } from "@/providers/auth-provider";
 import { updateProfileApi } from "@/services/auth";
 
@@ -28,8 +30,11 @@ export default function ProfilePage() {
       updateUser(res.user);
       toast.success("Profile updated successfully!");
       setPassword("");
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Profile update failed.");
+    } catch (error: unknown) {
+      const message = isAxiosError<{ error?: string; errors?: string[] }>(error)
+        ? error.response?.data?.errors?.[0] || error.response?.data?.error
+        : undefined;
+      toast.error(message || "Profile update failed.");
     } finally {
       setLoading(false);
     }
@@ -92,17 +97,12 @@ export default function ProfilePage() {
                   <Label htmlFor="password">New Password</Label>
                   <span className="text-[11px] text-muted-foreground">Optional</span>
                 </div>
-                <div className="relative">
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Leave blank to keep current"
-                    className="pl-10"
-                  />
-                </div>
+                <PasswordInput
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Leave blank to keep current"
+                />
               </div>
 
               <div className="border-t border-border pt-5">

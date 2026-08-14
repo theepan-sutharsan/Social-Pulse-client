@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 import {
   Bell,
   BrainCircuit,
+  ChevronLeft,
+  ChevronRight,
   LayoutDashboard,
   Library,
   Lightbulb,
@@ -22,6 +24,7 @@ import {
   Shield,
   Sparkles,
   UserRound,
+  UserCog,
   UsersRound,
   Video,
   X,
@@ -60,12 +63,13 @@ const workspaceGroups: NavGroup[] = [
 ];
 
 const adminGroup: NavGroup = {
-  label: "Administration",
+  label: "Admin console",
   items: [
-    { href: "/admin/dashboard", label: "Admin overview", icon: Shield },
-    { href: "/admin/accounts", label: "All accounts", icon: Radio },
-    { href: "/admin/tracked-channels", label: "Tracked channels", icon: Library },
-    { href: "/admin/suggestions", label: "All suggestions", icon: Sparkles },
+    { href: "/admin/dashboard", label: "Command center", icon: Shield },
+    { href: "/admin/users", label: "User access", icon: UserCog },
+    { href: "/admin/accounts", label: "Accounts & connections", icon: Radio },
+    { href: "/admin/tracked-channels", label: "Research channels", icon: Library },
+    { href: "/admin/suggestions", label: "AI activity", icon: Sparkles },
   ],
 };
 
@@ -73,10 +77,44 @@ function isRouteActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const SIDEBAR_STORAGE_KEY = "social-pulse-sidebar-hidden";
+const SIDEBAR_VISIBILITY_EVENT = "social-pulse-sidebar-visibility";
+
+function subscribeToSidebarVisibility(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(SIDEBAR_VISIBILITY_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(SIDEBAR_VISIBILITY_EVENT, onChange);
+  };
+}
+
+function getSidebarVisibilitySnapshot() {
+  try {
+    return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function getServerSidebarVisibilitySnapshot() {
+  return false;
+}
+
+function updateSidebarVisibility(hidden: boolean) {
+  try {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(hidden));
+  } catch {
+    // Continue to support the toggle when browser storage is unavailable.
+  }
+  window.dispatchEvent(new Event(SIDEBAR_VISIBILITY_EVENT));
+}
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { user, isAdmin, logout } = useAuth();
-  const groups = isAdmin ? [...workspaceGroups, adminGroup] : workspaceGroups;
+  const isAdminRoute = pathname.startsWith("/admin");
+  const groups = isAdmin && isAdminRoute ? [adminGroup] : isAdmin ? [...workspaceGroups, adminGroup] : workspaceGroups;
   const initials = (user?.full_name || user?.email || "SP")
     .split(/\s|@/)
     .filter(Boolean)
@@ -89,9 +127,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <div className="flex h-20 items-center px-5">
         <Link href="/dashboard" onClick={onNavigate} className="flex min-w-0 items-center gap-3">
           <Image src="/social-pulse-mark.png" alt="" width={44} height={44} className="h-11 w-11 shrink-0 object-contain" priority />
-          <span className="truncate text-xl font-black tracking-tight text-sidebar-foreground">
-            Social<span className="text-primary">Pulse</span>
-          </span>
+          <div className="min-w-0">
+            <span className="block truncate text-xl font-black tracking-tight text-sidebar-foreground">
+              Social<span className="text-primary">Pulse</span>
+            </span>
+            {isAdminRoute && isAdmin && (
+              <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Admin console</span>
+            )}
+          </div>
         </Link>
       </div>
 
@@ -159,6 +202,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const sidebarHidden = useSyncExternalStore(
+    subscribeToSidebarVisibility,
+    getSidebarVisibilitySnapshot,
+    getServerSidebarVisibilitySnapshot,
+  );
   const drawerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const allItems = [...workspaceGroups.flatMap((group) => group.items), ...adminGroup.items];
@@ -204,9 +252,36 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-sidebar-border lg:block">
-        <SidebarContent />
-      </aside>
+      {!sidebarHidden && (
+        <div className="fixed inset-y-0 left-0 z-40 hidden w-72 lg:block">
+          <aside className="relative h-full w-full border-r border-sidebar-border">
+            <SidebarContent />
+            <Button
+              variant="outline"
+              size="icon-sm"
+              aria-label="Hide sidebar"
+              title="Hide sidebar"
+              onClick={() => updateSidebarVisibility(true)}
+              className="absolute -right-4 top-1/2 z-50 -translate-y-1/2 rounded-full border-sidebar-border bg-background shadow-md hover:bg-accent"
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+          </aside>
+        </div>
+      )}
+
+      {sidebarHidden && (
+        <Button
+          variant="outline"
+          size="icon-sm"
+          aria-label="Show sidebar"
+          title="Show sidebar"
+          onClick={() => updateSidebarVisibility(false)}
+          className="fixed left-0 top-1/2 z-40 hidden -translate-y-1/2 rounded-l-none rounded-r-full border-sidebar-border bg-background shadow-md hover:bg-accent lg:flex"
+        >
+          <ChevronRight className="size-4" />
+        </Button>
+      )}
 
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/90 px-4 backdrop-blur-md lg:hidden">
         <div className="flex min-w-0 items-center gap-3">
@@ -251,7 +326,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="min-h-screen min-w-0 lg:pl-72">{children}</main>
+      <main className={cn("min-h-screen min-w-0", !sidebarHidden && "lg:pl-72")}>{children}</main>
     </div>
   );
 }
